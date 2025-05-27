@@ -19,8 +19,11 @@
 
 ## Features
 
-- Enter a URL and generate a QR code instantly
-- Download the generated QR code as a PNG image
+- QR Code Generation:
+  - Enter URL and generate downloable QR code as a PNG image
+- VCard Generation:
+  - Enter details in the given fields and generate downloable QR code as a PNG image
+  - Allowing viewers to Add to Contacts on a single tap from VCard.
 
 ## Live Access: [Click Me](https://qri-card.vercel.app)
 
