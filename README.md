@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="https://github.com/vpatel071997/qri-card"><img src="/public/icon.svg" alt="QriCard." width="400"></a>
+ QriCard.
 </h1>
 
 <h3 align="center">Qri Card - A simple React app to generate and download QR codes for any URL. Built with React, TypeScript, and React Bootstrap.</h3>
