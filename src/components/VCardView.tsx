@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Container, Card, Button, Row, Col } from "react-bootstrap";
+import { Container, Button } from "react-bootstrap";
 
 import { VCardProps } from "../utils/props";
 import { vCardFields } from "../utils/vCardFields";
@@ -124,42 +124,29 @@ export default function VCardView() {
     return (
         <Container
             fluid
-            className="d-flex flex-column align-items-center justify-content-center"
+            className="d-flex flex-column  p-5"
         >
-            <Row>
-                <Col
-                    sm={12}
-                    md={6}
-                    lg={6}
-                >
-                    <Card
-                        className="shadow p-3 mb-5 bg-white rounded border-0"
-                    >
-                        <Card.Body>
-                            <Card.Title>View VCard</Card.Title>
-                            <hr />
-                            <Card.Body>
-                                <Row>
-                                    <Col xs={12}>
-                                        <ul className="list-group">
-                                            {vCardFields.map((field) => (
-                                                vCard?.[field.name] ? (
-                                                    <li className="list-group-item" key={field.name}>
-                                                        <strong>{field.label}:</strong> {vCard[field.name]}
-                                                    </li>
-                                                ) : null
-                                            ))}
-                                        </ul>
-                                    </Col>
-                                </Row>
-                                <Button variant="primary" onClick={handleAddToContacts}>
-                                    Add to Contacts
-                                </Button>
-                            </Card.Body>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
+            <h1 className="mb-4 display-6">Create your VCard</h1>
+            <p className="text-muted">Generate a QR Code for any URL. Simply enter the URL below and click 'Generate QR Code'.</p>
+
+            <div className="content">
+                <Button variant="primary" onClick={handleAddToContacts}>
+                    Add to Contacts
+                </Button>
+
+                <table className="table mt-4 bg-transparent text-dark" style={{ background: "transparent" }}>
+                    <tbody>
+                        {vCardFields.map((field) =>
+                            vCard?.[field.name] ? (
+                                <tr key={field.name}>
+                                    <th className="text-muted" style={{ width: "30%", background: "transparent" }}>{field.label}</th>
+                                    <td style={{ paddingTop: "0.75rem", paddingBottom: "0.75rem", background: "transparent" }}>{vCard[field.name]}</td>
+                                </tr>
+                            ) : null
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </Container >
     );
 }

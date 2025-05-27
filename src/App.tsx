@@ -38,10 +38,6 @@ function App() {
           <Route path="/vcard-view" element={<VCardView />} />
         </Routes>
       </Container>
-
-      <footer className="text-center mt-5 p-3 bg-light border-top text-muted position-relative">
-        @2025 vpatel.au. All rights reserved.
-      </footer>
     </div>
   );
 }

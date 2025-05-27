@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Container, Card, Button, Form, Row, Col } from "react-bootstrap";
+import { Container, Button, Form } from "react-bootstrap";
 import GenerateQR from "react-qr-code";
 import { toPng } from "html-to-image";
 
@@ -43,75 +43,58 @@ function URLToQR() {
     return (
         <Container
             fluid
-            className="d-flex flex-column align-items-center justify-content-center vh-100"
+            className="d-flex flex-column  p-5"
         >
-            <Row>
-                <Col
-                    sm={12}
-                    md={6}
-                    lg={4}
-                    style={{
-                        position: "absolute",
-                        left: "50%",
-                        top: "50%",
-                        transform: "translate(-50%, -50%)",
-                    }}
-                >
-                    <Card
-                        className="shadow p-3 mb-5 bg-white rounded border-0"
-                        style={{ alignContent: "center", textAlign: "center" }}
-                    >
-                        <Card.Body>
-                            <Card.Title>Generate Qr Code</Card.Title>
-                            <hr />
-                            <Card.Body>
-                                <Form onSubmit={handleSubmit}>
-                                    <Form.Group className="mb-3" controlId="formUrl">
-                                        <Form.Control
-                                            type="url"
-                                            placeholder="https://example.com"
-                                            value={url}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </Form.Group>
-                                    <Button variant="primary" type="submit" className="me-2">
-                                        Gerenate
-                                    </Button>
-                                    <Button
-                                        variant="danger"
-                                        onClick={handleClear}
-                                        className="me-2"
-                                    >
-                                        Clear
-                                    </Button>
-                                </Form>
+            <h1 className="mb-4 display-6">QR Code Generator</h1>
+            <p className="text-muted">Generate a QR Code for any URL. Simply enter the URL below and click 'Generate QR Code'.</p>
 
-                                {generate && url && (
-                                    <div>
-                                        <hr />
-                                        <div
-                                            ref={qrRef}
-                                            style={{ background: "white", padding: "18px" }}
-                                        >
-                                            <GenerateQR
-                                                size={256}
-                                                style={{
-                                                    height: "auto",
-                                                    maxWidth: "100%",
-                                                    width: "100%",
-                                                }}
-                                                value={url}
-                                            />
-                                        </div>
-                                        <Button onClick={handleDownload}>Download (.png)</Button>
-                                    </div>
-                                )}
-                            </Card.Body>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
+            <div className="content" style={{ maxWidth: "600px" }}>
+                <Form onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3" controlId="formUrl">
+                        <Form.Control
+                            type="url"
+                            placeholder="https://example.com"
+                            value={url}
+                            onChange={handleChange}
+                            className="form-control p-3 border-1 rounded bg-transparent text-dark"
+                            required
+                        />
+                    </Form.Group>
+                    <Button variant="primary" type="submit" className="me-2">
+                        Gerenate
+                    </Button>
+                    <Button
+                        variant="danger"
+                        onClick={handleClear}
+                        className="me-2"
+                    >
+                        Clear
+                    </Button>
+                </Form>
+                {generate && url && (
+                    <div>
+                        <hr />
+                        <p>Generated Qr Code:</p>
+                        <div
+                            ref={qrRef}
+                            style={{
+                                background: "white", padding: "18px",
+                                maxWidth: "200px", marginBottom: "20px",
+                            }}
+                        >
+                            <GenerateQR
+                                size={256}
+                                style={{
+                                    height: "auto",
+                                    width: "100%",
+                                }}
+                                value={url}
+                            />
+                        </div>
+                        <Button onClick={handleDownload}>Download (.png)</Button>
+                    </div>
+                )}
+            </div>
         </Container>
     );
 }
