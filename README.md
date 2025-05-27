@@ -8,7 +8,7 @@
 
  <img alt="Status" src="https://img.shields.io/badge/status-In Production-green">
 
-  <img alt="Latest Version" src="https://img.shields.io/badge/latest version-0.1.0-2e7f74">
+  <img alt="Latest Version" src="https://img.shields.io/badge/latest version-0.1.1-2e7f74">
   
   <img alt="License" src="https://img.shields.io/badge/license-MIT-d52536">
 
@@ -28,7 +28,7 @@
 
 ### Prerequisites
 
-- Node.js (v18 or newer recommended)
+- Node.js (v20 or newer recommended)
 - npm
 
 ### Installation
