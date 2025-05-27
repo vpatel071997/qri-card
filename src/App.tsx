@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Container, Nav, Navbar } from 'react-bootstrap';
+import { Button, Container, Nav, Navbar } from 'react-bootstrap';
 
 import Landing from './components/Landing';
 import URLToQR from './components/URLToQR';
@@ -16,20 +16,25 @@ function App() {
   }, [location.pathname]);
 
   return (
-    <>
+    <div
+      style={{
+        minHeight: "100vh",
+        minWidth: "100vw",
+      }}
+    >
       {showNavBar && (
-        <Navbar expand="sm" className="bg-body-tertiary">
+        <Navbar expand="sm" className="bg-body-tertiary border-bottom" data-bs-theme="light">
           <Container fluid>
             <Navbar.Brand href="/">QriCard.</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse className="justify-content-end" style={{ gap: '1rem' }}>
+            <Navbar.Collapse className="justify-content-end text-body" style={{ gap: '1rem' }}>
               <Nav.Link as={Link} to="url-to-qr">Url to QR</Nav.Link>
-              <Nav.Link as={Link} to="/vcard-gen">VCard Generator</Nav.Link>
+              <Button variant="primary"> <Nav.Link as={Link} to="/vcard-gen">VCard Generator</Nav.Link></Button>
             </Navbar.Collapse>
           </Container>
         </Navbar>
       )}
-      <Container fluid>
+      <Container fluid >
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/url-to-qr" element={<URLToQR />} />
@@ -37,7 +42,7 @@ function App() {
           <Route path="/vcard-view" element={<VCardView />} />
         </Routes>
       </Container>
-    </>
+    </div>
   );
 }
 
