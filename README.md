@@ -22,7 +22,7 @@
 - Enter a URL and generate a QR code instantly
 - Download the generated QR code as a PNG image
 
-## Live Access: [Click Me]()
+## Live Access: [Click Me](https://qri-card.vercel.app)
 
 ## Development - Getting Started
 
