@@ -43,12 +43,7 @@ function URLToQR() {
     return (
         <Container
             fluid
-            style={{
-                minHeight: "100vh",
-                minWidth: "100vw",
-                background:
-                    "linear-gradient(135deg,rgb(255, 255, 255) 0%,rgb(239, 239, 239) 100%)",
-            }}
+            className="d-flex flex-column align-items-center justify-content-center vh-100"
         >
             <Row>
                 <Col

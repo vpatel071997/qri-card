@@ -124,25 +124,16 @@ export default function VCardView() {
     return (
         <Container
             fluid
-            style={{
-                minHeight: "100vh",
-                minWidth: "100vw",
-                background:
-                    "linear-gradient(135deg,rgb(255, 255, 255) 0%,rgb(239, 239, 239) 100%)",
-            }}
+            className="d-flex flex-column align-items-center justify-content-center"
         >
             <Row>
                 <Col
                     sm={12}
                     md={6}
                     lg={6}
-                    style={{
-                        alignContent: "center", textAlign: "center", position: "absolute"
-                    }}
                 >
                     <Card
                         className="shadow p-3 mb-5 bg-white rounded border-0"
-                        style={{ alignContent: "center", textAlign: "center" }}
                     >
                         <Card.Body>
                             <Card.Title>View VCard</Card.Title>
