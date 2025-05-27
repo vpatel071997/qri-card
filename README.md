@@ -2,7 +2,7 @@
  QriCard.
 </h1>
 
-<h3 align="center">Qri Card - A simple React app to generate and download QR codes for any URL.</h3>
+<h3 align="center">Qri Card - Simple solution to generate and download QR codes for any URL for FREE.</h3>
 
 <p align="center">
 
