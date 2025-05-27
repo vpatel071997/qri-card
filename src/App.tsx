@@ -1,123 +1,61 @@
-import { useRef, useState } from "react";
-import { Container, Card, Button, Form, Row, Col } from "react-bootstrap";
-import GenerateQR from "react-qr-code";
-import { toPng } from "html-to-image";
+import { useEffect, useState } from "react";
+import {
+  Routes,
+  Route,
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import { Button, Container, Nav, Navbar } from "react-bootstrap";
+
+import Landing from "./components/Landing";
+import URLToQR from "./components/URLToQR";
+import VCardGen from "./components/VCardGen";
+import VCardView from "./components/VCardView";
 
 function App() {
-  const [url, setUrl] = useState<string>("");
-  const [generate, setGenerate] = useState<boolean>(false);
-  const qrRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [showNavBar, setShowNavBar] = useState<boolean>(true);
 
-  const handleDownload = () => {
-    if (qrRef.current === null) return;
-
-    toPng(qrRef?.current)
-      .then((dataUrl) => {
-        const link = document.createElement("a");
-        link.download = "qri-card-export.png";
-        link.href = dataUrl;
-        link.click();
-      })
-      .catch((err) => {
-        console.error("Error generating QR code PNG:", err);
-      });
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUrl(e.target.value);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setGenerate(true);
-  };
-
-  const handleClear = () => {
-    setUrl("");
-    setGenerate(false);
-    if (qrRef.current) {
-      qrRef.current.innerHTML = "";
-    }
-  };
+  useEffect(() => {
+    setShowNavBar(location.pathname !== "/vcard-view");
+  }, [location.pathname]);
 
   return (
-    <Container
-      fluid
-      style={{
-        minHeight: "100vh",
-        minWidth: "100vw",
-        background:
-          "linear-gradient(135deg,rgb(255, 255, 255) 0%,rgb(239, 239, 239) 100%)",
-      }}
-    >
-      <Row>
-        <Col
-          sm={12}
-          md={6}
-          lg={4}
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
+    <div>
+      {showNavBar && (
+        <Navbar
+          expand="sm"
+          className="bg-body-tertiary border-bottom"
+          data-bs-theme="light"
         >
-          <Card
-            className="shadow p-3 mb-5 bg-white rounded border-0"
-            style={{ alignContent: "center", textAlign: "center" }}
-          >
-            <Card.Body>
-              <Card.Title>Generate Qr Code</Card.Title>
-              <hr />
-              <Card.Body>
-                <Form onSubmit={handleSubmit}>
-                  <Form.Group className="mb-3" controlId="formUrl">
-                    <Form.Control
-                      type="url"
-                      placeholder="https://example.com"
-                      value={url}
-                      onChange={handleChange}
-                      required
-                    />
-                  </Form.Group>
-                  <Button variant="primary" type="submit" className="me-2">
-                    Gerenate
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={handleClear}
-                    className="me-2"
-                  >
-                    Clear
-                  </Button>
-                </Form>
-
-                {generate && url && (
-                  <div>
-                    <hr />
-                    <div
-                      ref={qrRef}
-                      style={{ background: "white", padding: "18px" }}
-                    >
-                      <GenerateQR
-                        size={256}
-                        style={{
-                          height: "auto",
-                          maxWidth: "100%",
-                          width: "100%",
-                        }}
-                        value={url}
-                      />
-                    </div>
-                    <Button onClick={handleDownload}>Download (.png)</Button>
-                  </div>
-                )}
-              </Card.Body>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+          <Container fluid>
+            <Navbar.Brand href="/">QriCard.</Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse
+              className="justify-content-end text-body"
+              style={{ gap: "1rem" }}
+            >
+              <Nav.Link as={Link} to="url-to-qr">
+                Url to QR
+              </Nav.Link>
+              <Button variant="primary" onClick={() => navigate("/vcard-gen")}>
+                VCard Generator
+              </Button>
+            </Navbar.Collapse>
+          </Container>
+        </Navbar>
+      )}
+      <Container fluid>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/url-to-qr" element={<URLToQR />} />
+          <Route path="/vcard-gen" element={<VCardGen />} />
+          <Route path="/vcard-view" element={<VCardView />} />
+        </Routes>
+      </Container>
+    </div>
   );
 }
 
