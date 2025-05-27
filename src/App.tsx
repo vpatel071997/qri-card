@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Container, Nav, Navbar } from 'react-bootstrap';
 
 import Landing from './components/Landing';
@@ -9,6 +9,7 @@ import VCardView from './components/VCardView';
 
 function App() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [showNavBar, setShowNavBar] = useState<boolean>(true);
 
   useEffect(() => {
@@ -16,12 +17,7 @@ function App() {
   }, [location.pathname]);
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        minWidth: "100vw",
-      }}
-    >
+    <div>
       {showNavBar && (
         <Navbar expand="sm" className="bg-body-tertiary border-bottom" data-bs-theme="light">
           <Container fluid>
@@ -29,7 +25,7 @@ function App() {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse className="justify-content-end text-body" style={{ gap: '1rem' }}>
               <Nav.Link as={Link} to="url-to-qr">Url to QR</Nav.Link>
-              <Button variant="primary"> <Nav.Link as={Link} to="/vcard-gen">VCard Generator</Nav.Link></Button>
+              <Button variant="primary" onClick={() => navigate("/vcard-gen")}>VCard Generator</Button>
             </Navbar.Collapse>
           </Container>
         </Navbar>
@@ -42,6 +38,10 @@ function App() {
           <Route path="/vcard-view" element={<VCardView />} />
         </Routes>
       </Container>
+
+      <footer className="text-center mt-5 p-3 bg-light border-top text-muted position-relative">
+        @2025 vpatel.au. All rights reserved.
+      </footer>
     </div>
   );
 }

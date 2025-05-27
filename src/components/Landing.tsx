@@ -10,9 +10,6 @@ function Landing() {
                     <a href="/vcard-gen" className="btn btn-secondary">Create VCard</a>
                 </div>
             </div>
-            <footer className="text-center mt-5 p-3 bg-light border-top">
-                @2025 vpatel.au. All rights reserved.
-            </footer>
         </>
     );
 }
