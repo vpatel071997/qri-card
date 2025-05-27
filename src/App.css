@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 
 :root {
   --color-bg-light: #f8fafc;
@@ -10,23 +10,32 @@
   --color-footer-text: #2b2d42;
 }
 
-body, #root {
+body,
+#root {
   min-height: 100vh;
   min-width: 100vw;
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', Arial, sans-serif;
-  background: linear-gradient(135deg, var(--color-bg-light) 0%, var(--color-bg-gradient) 100%);
+  font-family: "Roboto", Arial, sans-serif;
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-light) 0%,
+    var(--color-bg-gradient) 100%
+  );
 }
 
 .navbar {
-  background: linear-gradient(90deg, var(--color-bg-light) 0%, var(--color-bg-gradient) 100%) !important;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-light) 0%,
+    var(--color-bg-gradient) 100%
+  ) !important;
   border-bottom: 1px solid var(--color-border);
-  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.03);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.03);
 }
 
 .navbar-brand {
-  font-family: 'Roboto', serif;
+  font-family: "Roboto", serif;
   font-size: 1.4rem;
   font-weight: 600;
   color: var(--color-primary) !important;
@@ -36,12 +45,13 @@ body, #root {
 .nav-link {
   color: var(--color-primary) !important;
   font-weight: 400;
-  font-size: .9rem;
+  font-size: 0.9rem;
   margin-right: 1rem;
   transition: color 0.2s;
 }
 
-.nav-link:hover, .nav-link.active {
+.nav-link:hover,
+.nav-link.active {
   color: var(--color-accent) !important;
 }
 
@@ -51,19 +61,22 @@ body, #root {
 
 @media (max-width: 575.98px) {
   .navbar-collapse {
-    background: linear-gradient(90deg, var(--color-bg-light) 0%, var(--color-bg-gradient) 100%);
+    background: linear-gradient(
+      90deg,
+      var(--color-bg-light) 0%,
+      var(--color-bg-gradient) 100%
+    );
     padding: 1rem 0.5rem;
     border-radius: 0 0 12px 12px;
-    box-shadow: 0 4px 12px 0 rgba(0,0,0,0.04);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.04);
     text-align: center !important;
     margin-top: 0.5rem;
   }
 
-  .nav-link{
-    padding: .5em;
+  .nav-link {
+    padding: 0.5em;
   }
 }
-
 
 .btn-primary {
   background: var(--color-accent);
