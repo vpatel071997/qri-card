@@ -3,7 +3,8 @@
   "description": "Say goodbye to typing in phone numbers or emails—just generate your vCard, share your unique QR code, and connect instantly.",
   "author": {
     "name": "Vaibhav Patel",
-    "email": "vpatel071997@gmail.com"
+    "email": "vpatel071997@gmail.com",
+    "url": "https://vpatel.au"
   },
   "license": "MIT",
   "version": "0.1.0",
