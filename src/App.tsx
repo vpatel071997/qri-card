@@ -26,8 +26,7 @@ function App() {
     <div>
       {showNavBar && (
         <Navbar
-          expand="sm"
-          className="bg-body-tertiary border-bottom"
+          className="bg-body-tertiary border-bottom shadow p-3 mb-5 bg-white rounded"
           data-bs-theme="light"
         >
           <Container fluid>
