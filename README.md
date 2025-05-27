@@ -2,7 +2,7 @@
  QriCard.
 </h1>
 
-<h3 align="center">Qri Card - A simple React app to generate and download QR codes for any URL. Built with React, TypeScript, and React Bootstrap.</h3>
+<h3 align="center">Qri Card - A simple React app to generate and download QR codes for any URL.</h3>
 
 <p align="center">
 
@@ -82,3 +82,4 @@ src/
 - [React Bootstrap](https://react-bootstrap.github.io/)
 - [react-qr-code](https://github.com/rosskhanas/react-qr-code)
 - [html-to-image](https://github.com/bubkoo/html-to-image)
+- [Powered By Vercel](http://vercel.com)
