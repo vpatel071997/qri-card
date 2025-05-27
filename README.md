@@ -22,12 +22,12 @@
 - QR Code Generation:
   - Enter URL and generate downloable QR code as a PNG image
 - VCard Generation:
-  - Enter details in the given fields and generate downloable QR code as a PNG image
-  - Allowing viewers to Add to Contacts on a single tap from VCard.
+  - Enter details in the given fields and export QR code as a PNG image
+  - Allowing viewer to `Add to Contacts` on a single tap from VCard.
 
 ## Live Access: [Click Me](https://qri-card.vercel.app)
 
-## Development - Getting Started
+## Development/Contribution - Getting Started
 
 ### Prerequisites
 
