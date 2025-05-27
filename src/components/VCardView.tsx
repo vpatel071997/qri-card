@@ -124,11 +124,8 @@ export default function VCardView() {
     return (
         <Container
             fluid
-            className="d-flex flex-column  p-5"
+            className="d-flex flex-column pt-5 pb-5"
         >
-            <h1 className="mb-4 display-6">Create your VCard</h1>
-            <p className="text-muted">Generate a QR Code for any URL. Simply enter the URL below and click 'Generate QR Code'.</p>
-
             <div className="content">
                 <Button variant="primary" onClick={handleAddToContacts}>
                     Add to Contacts
