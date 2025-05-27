@@ -1,4 +1,4 @@
-name: CI
+name: QriCard Runner
 
 on:
   push:

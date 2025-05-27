@@ -46,8 +46,10 @@ function App() {
       style={{
         minHeight: "100vh",
         minWidth: "100vw",
-        background: "linear-gradient(135deg,rgb(255, 255, 255) 0%,rgb(239, 239, 239) 100%)",
-      }}>
+        background:
+          "linear-gradient(135deg,rgb(255, 255, 255) 0%,rgb(239, 239, 239) 100%)",
+      }}
+    >
       <Row>
         <Col
           sm={12}
