@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Container, Button } from "react-bootstrap";
+import { Container, Button, Image, Table } from "react-bootstrap";
 
 import { VCardProps } from "../utils/props";
 import { vCardFields } from "../utils/vCardFields";
@@ -90,6 +90,19 @@ export default function VCardView() {
         case "note":
           vcardStr += `NOTE:${value}\n`;
           break;
+        // Add social media fields here
+        case "linkedin":
+          vcardStr += `X-SOCIALPROFILE;TYPE=linkedin:${value}\n`;
+          break;
+        case "twitter":
+          vcardStr += `X-SOCIALPROFILE;TYPE=twitter:${value}\n`;
+          break;
+        case "facebook":
+          vcardStr += `X-SOCIALPROFILE;TYPE=facebook:${value}\n`;
+          break;
+        case "instagram":
+          vcardStr += `X-SOCIALPROFILE;TYPE=instagram:${value}\n`;
+          break;
         default:
           break;
       }
@@ -121,40 +134,92 @@ export default function VCardView() {
   };
 
   return (
-    <Container fluid className="d-flex flex-column pt-5 pb-5">
+    <Container fluid className="d-flex flex-column pt-5 pb-5 ">
       <div className="content">
-        <Button variant="primary" onClick={handleAddToContacts}>
-          Add to Contacts
-        </Button>
+        <div className="d-block justify-content-center align-items-center text-center">
+          {vCardFields.map((field) => {
+            if (field.name === "photoUrl" && vCard?.[field.name]) {
+              return (
+                <Image
+                  key={field.name}
+                  src={vCard[field.name]}
+                  roundedCircle
+                  className="mt-4 shadow  bg-white rounded"
+                  style={{
+                    width: "171px",
+                    height: "180px",
+                    objectFit: "cover",
+                    border: "1px solid #ffffff",
+                  }}
+                  alt="Profile"
+                  loading="lazy"
+                />
+              );
+            }
+            return null;
+          })}
 
-        <table
+          <br />
+
+          <h1 className="mt-4 display-6">
+            {vCard?.title} {vCard?.firstName} {vCard?.middleName}{" "}
+            {vCard?.lastName}
+          </h1>
+
+          <Button
+            variant="primary"
+            onClick={handleAddToContacts}
+            className="mt-2"
+          >
+            Add to Contacts
+          </Button>
+        </div>
+
+        <Table
           className="table mt-4 bg-transparent text-dark"
           style={{ background: "transparent" }}
         >
           <tbody>
             {vCardFields.map((field) =>
-              vCard?.[field.name] ? (
-                <tr key={field.name}>
-                  <th
-                    className="text-muted"
-                    style={{ width: "30%", background: "transparent" }}
-                  >
-                    {field.label}
-                  </th>
-                  <td
-                    style={{
-                      paddingTop: "0.75rem",
-                      paddingBottom: "0.75rem",
-                      background: "transparent",
-                    }}
-                  >
-                    {vCard[field.name]}
-                  </td>
-                </tr>
+              vCard?.[field.name] &&
+              field.name !== "title" &&
+              field.name !== "firstName" &&
+              field.name !== "middleName" &&
+              field.name !== "lastName" &&
+              field.name !== "photoUrl" ? (
+                <>
+                  <tr key={field.name}>
+                    <th
+                      className="text-muted"
+                      style={{ width: "30%", background: "transparent" }}
+                    >
+                      {field.label}
+                    </th>
+                    <td
+                      style={{
+                        paddingTop: "0.75rem",
+                        paddingBottom: "0.75rem",
+                        background: "transparent",
+                      }}
+                    >
+                      {field.type === "url" ? (
+                        <a
+                          href={vCard[field.name]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Visit {field.label}
+                        </a>
+                      ) : (
+                        vCard[field.name]
+                      )}
+                    </td>
+                  </tr>
+                </>
               ) : null,
             )}
           </tbody>
-        </table>
+        </Table>
       </div>
     </Container>
   );

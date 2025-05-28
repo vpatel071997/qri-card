@@ -71,7 +71,23 @@ export default function VCardGen() {
                     {field.label}
                     {field.required && " *"}
                   </Form.Label>
-                  {field.type === "textarea" ? (
+                  {field.options ? (
+                    <Form.Select
+                      className="form-select p-2 border-secondary rounded bg-transparent text-dark"
+                      value={vCard?.[field.name] ?? ""}
+                      onChange={(e) =>
+                        setVCard({ ...vCard, [field.name]: e.target.value })
+                      }
+                      required={field.required}
+                    >
+                      <option value="">Select {field.label}</option>
+                      {field.options.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  ) : field.type === "textarea" ? (
                     <Form.Control
                       as="textarea"
                       rows={3}

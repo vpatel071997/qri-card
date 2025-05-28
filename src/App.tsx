@@ -54,6 +54,15 @@ function App() {
           <Route path="/vcard-view" element={<VCardView />} />
         </Routes>
       </Container>
+
+      <footer className="text-center text-muted bg-transparent font-italic">
+        <p className="font-italic">
+          Created by{" "}
+          <a href="https://vpatel.au" target="_blank" rel="noopener noreferrer">
+            Vaibhav Patel
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }
