@@ -76,7 +76,7 @@ export default function VCardGen() {
                       as="textarea"
                       rows={3}
                       value={vCard?.[field.name] ?? ""}
-                      className="form-control p-3 border-1 rounded bg-transparent text-dark"
+                      className="form-control p-2 border-secondary rounded bg-transparent text-dark"
                       onChange={(e) =>
                         setVCard({ ...vCard, [field.name]: e.target.value })
                       }
@@ -85,7 +85,7 @@ export default function VCardGen() {
                   ) : (
                     <Form.Control
                       type={field.type}
-                      className="form-control p-3 border-1 rounded bg-transparent text-dark"
+                      className="form-control p-2 border-secondary rounded bg-transparent text-dark"
                       value={vCard?.[field.name] ?? ""}
                       onChange={(e) =>
                         setVCard({ ...vCard, [field.name]: e.target.value })

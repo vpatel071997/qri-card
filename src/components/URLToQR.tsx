@@ -56,7 +56,7 @@ function URLToQR() {
               placeholder="Enter URL"
               value={url}
               onChange={handleChange}
-              className="form-control p-3 border-1 rounded bg-transparent text-dark"
+              className="form-control p-2 border-secondary rounded bg-transparent text-dark"
               required
             />
           </Form.Group>
