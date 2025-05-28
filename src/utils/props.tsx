@@ -1,28 +1,24 @@
 export interface VCardProps {
+  title?: string;
   firstName?: string;
-  lastName?: string;
   middleName?: string;
-  prefix?: string;
-  suffix?: string;
-  nickname?: string;
+  lastName?: string;
+  gender?: string;
   email?: string;
   phone?: string;
-  homePhone?: string;
-  workPhone?: string;
-  cellPhone?: string;
-  fax?: string;
-  org?: string;
-  title?: string;
   street?: string;
   city?: string;
   state?: string;
   country?: string;
   postalCode?: string;
-  website?: string;
   birthday?: string;
+  org?: string;
   photoUrl?: string;
-  gender?: string;
-  timezone?: string;
+  website?: string;
+  instagram?: string;
+  linkedin?: string;
+  twitter?: string;
+  facebook?: string;
   note?: string;
   [key: string]: string | undefined;
 }

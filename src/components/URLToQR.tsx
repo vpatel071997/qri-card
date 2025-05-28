@@ -41,7 +41,11 @@ function URLToQR() {
   };
 
   return (
-    <Container fluid className="d-flex flex-column  p-5">
+    <Container
+      fluid
+      className="d-flex flex-column p-5"
+      style={{ position: "relative", zIndex: 1, minHeight: "75vh" }}
+    >
       <h1 className="mb-4 display-6">QR Code Generator</h1>
       <p className="text-muted">
         Generate a QR Code for any URL. Simply enter the URL below and click
@@ -56,7 +60,7 @@ function URLToQR() {
               placeholder="Enter URL"
               value={url}
               onChange={handleChange}
-              className="form-control p-3 border-1 rounded bg-transparent text-dark"
+              className="form-control p-2 border-secondary rounded bg-transparent text-dark"
               required
             />
           </Form.Group>

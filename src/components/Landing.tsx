@@ -63,7 +63,7 @@ function Landing() {
         <QrBackground />
         <div
           className="d-flex flex-column align-items-center justify-content-center text-center"
-          style={{ position: "relative", zIndex: 1, height: "80vh" }}
+          style={{ position: "relative", zIndex: 1, minHeight: "75vh" }}
         >
           <h1 className="mb-4 display-1">
             Create and Share Your Digital <br />
