@@ -93,6 +93,15 @@ function URLToQR() {
                 value={url}
               />
             </div>
+
+            <Form.Control
+              type="text"
+              className="form-control p-2 border-secondary rounded bg-transparent text-dark mb-3"
+              style={{ maxWidth: "400px" }}
+              value={url}
+              disabled
+              readOnly
+            />
             <Button onClick={handleDownload}>Download (.png)</Button>
           </div>
         )}

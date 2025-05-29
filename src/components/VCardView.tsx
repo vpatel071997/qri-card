@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container, Button, Image, Table } from "react-bootstrap";
+import LZString from "lz-string";
 
 import { VCardProps } from "../utils/props";
 import { vCardFields } from "../utils/vCardFields";
@@ -9,16 +10,34 @@ export default function VCardView() {
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    const vCardData: VCardProps = {};
-    const seen = new Set<string>();
+    let vCardData: VCardProps = {};
 
-    // Remove duplicates from incoming URL params
-    searchParams.forEach((value, key) => {
-      if (!seen.has(key)) {
-        vCardData[key] = value;
-        seen.add(key);
+    if (searchParams.has("data")) {
+      try {
+        const compressed = searchParams.get("data") || "";
+        const json = LZString.decompressFromEncodedURIComponent(compressed);
+        if (json) {
+          vCardData = JSON.parse(json);
+          const mappedData: VCardProps = {};
+          vCardFields.forEach((field) => {
+            if (vCardData[field.id]) {
+              mappedData[field.name] = vCardData[field.id];
+            }
+          });
+          vCardData = mappedData;
+        }
+      } catch (e) {
+        console.error("Failed to decompress vCard data", e);
       }
-    });
+    } else {
+      const seen = new Set<string>();
+      searchParams.forEach((value, key) => {
+        if (!seen.has(key)) {
+          vCardData[key] = value;
+          seen.add(key);
+        }
+      });
+    }
 
     setVCard(vCardData);
   }, []);
@@ -187,35 +206,33 @@ export default function VCardView() {
               field.name !== "middleName" &&
               field.name !== "lastName" &&
               field.name !== "photoUrl" ? (
-                <>
-                  <tr key={field.name}>
-                    <th
-                      className="text-muted"
-                      style={{ width: "30%", background: "transparent" }}
-                    >
-                      {field.label}
-                    </th>
-                    <td
-                      style={{
-                        paddingTop: "0.75rem",
-                        paddingBottom: "0.75rem",
-                        background: "transparent",
-                      }}
-                    >
-                      {field.type === "url" ? (
-                        <a
-                          href={vCard[field.name]}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Visit {field.label}
-                        </a>
-                      ) : (
-                        vCard[field.name]
-                      )}
-                    </td>
-                  </tr>
-                </>
+                <tr key={field.id}>
+                  <th
+                    className="text-muted"
+                    style={{ width: "30%", background: "transparent" }}
+                  >
+                    {field.label}
+                  </th>
+                  <td
+                    style={{
+                      paddingTop: "0.75rem",
+                      paddingBottom: "0.75rem",
+                      background: "transparent",
+                    }}
+                  >
+                    {field.type === "url" ? (
+                      <a
+                        href={vCard[field.name]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Visit {field.label}
+                      </a>
+                    ) : (
+                      vCard[field.name]
+                    )}
+                  </td>
+                </tr>
               ) : null,
             )}
           </tbody>

@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Container, Button, Form, Row, Col } from "react-bootstrap";
 import GenerateQR from "react-qr-code";
 import { toPng } from "html-to-image";
+import LZString from "lz-string";
 
 import { VCardProps } from "../utils/props";
 import { vCardFields } from "../utils/vCardFields";
@@ -31,14 +32,19 @@ export default function VCardGen() {
     e.preventDefault();
 
     if (typeof vCard !== "object" || vCard === null) return;
-    // Dynamically build query params from vCard object
-    const params = new URLSearchParams();
-    Object.entries(vCard).forEach(([key, value]) => {
-      if (value) params.append(key, value);
-    });
+
+    const filtered = Object.fromEntries(
+      Object.entries(vCard).filter(
+        ([_, v]) => v !== "" && v !== null && v !== undefined,
+      ),
+    );
+
+    const json = JSON.stringify(filtered);
+    const compressed = LZString.compressToEncodedURIComponent(json);
 
     const trimmedURL = window.location.origin;
-    const url = `${trimmedURL}/vcard-view?${params.toString()}`;
+    const url = `${trimmedURL}/vcard-view?data=${compressed}`;
+    console.log(url);
     setUrl(url);
     console.log(url);
     setGenerate(true);
@@ -65,8 +71,8 @@ export default function VCardGen() {
         <Form onSubmit={handleSubmit}>
           <Row>
             {vCardFields.map((field) => (
-              <Col xs={12} md={6} lg={3} key={field.name}>
-                <Form.Group className="mb-3" controlId={`vcard-${field.name}`}>
+              <Col xs={12} md={6} lg={3} key={field.id}>
+                <Form.Group className="mb-3" controlId={`vcard-${field.id}`}>
                   <Form.Label>
                     {field.label}
                     {field.required && " *"}
@@ -74,9 +80,9 @@ export default function VCardGen() {
                   {field.options ? (
                     <Form.Select
                       className="form-select p-2 border-secondary rounded bg-transparent text-dark"
-                      value={vCard?.[field.name] ?? ""}
+                      value={vCard?.[field.id] ?? ""}
                       onChange={(e) =>
-                        setVCard({ ...vCard, [field.name]: e.target.value })
+                        setVCard({ ...vCard, [field.id]: e.target.value })
                       }
                       required={field.required}
                     >
@@ -91,10 +97,10 @@ export default function VCardGen() {
                     <Form.Control
                       as="textarea"
                       rows={3}
-                      value={vCard?.[field.name] ?? ""}
+                      value={vCard?.[field.id] ?? ""}
                       className="form-control p-2 border-secondary rounded bg-transparent text-dark"
                       onChange={(e) =>
-                        setVCard({ ...vCard, [field.name]: e.target.value })
+                        setVCard({ ...vCard, [field.id]: e.target.value })
                       }
                       required={field.required}
                     />
@@ -102,9 +108,9 @@ export default function VCardGen() {
                     <Form.Control
                       type={field.type}
                       className="form-control p-2 border-secondary rounded bg-transparent text-dark"
-                      value={vCard?.[field.name] ?? ""}
+                      value={vCard?.[field.id] ?? ""}
                       onChange={(e) =>
-                        setVCard({ ...vCard, [field.name]: e.target.value })
+                        setVCard({ ...vCard, [field.id]: e.target.value })
                       }
                       required={field.required}
                     />
@@ -144,6 +150,15 @@ export default function VCardGen() {
                 value={url}
               />
             </div>
+
+            <Form.Control
+              type="text"
+              className="form-control p-2 border-secondary rounded bg-transparent text-dark mb-3"
+              style={{ maxWidth: "400px" }}
+              value={url}
+              disabled
+              readOnly
+            />
             <Button onClick={handleDownload}>Download (.png)</Button>
           </div>
         )}
