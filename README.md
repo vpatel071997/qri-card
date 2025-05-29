@@ -68,6 +68,22 @@ npm test
 npm run lint
 ```
 
+---
+
+### Build the Docker image
+
+```bash
+docker build -t qri-card .
+```
+
+### Run the Docker container
+
+```bash
+docker run -p 3000:80 qri-card
+```
+
+---
+
 ## Project Structure
 
 ```
