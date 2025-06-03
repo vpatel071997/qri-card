@@ -32,7 +32,7 @@ function createWindow() {
   });
 
   if (app.isPackaged) {
-    mainWindow.loadFile(path.join(__dirname, "index.html"));
+    mainWindow.loadFile(path.join(__dirname, "build", "index.html"));
   } else {
     mainWindow.loadURL("http://localhost:3000");
   }
