@@ -23,6 +23,8 @@ jobs:
         run: npm run electron:dist
       - name: Upload Windows Installer as Artifact
         uses: actions/upload-artifact@v4
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           name: qriCard-windows
           path: ./dist/*.msi
@@ -45,6 +47,8 @@ jobs:
         run: npm run electron:dist
       - name: Upload macOS Installer as Artifact
         uses: actions/upload-artifact@v4
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           name: qriCard-mac
           path: ./dist/*.dmg
@@ -67,6 +71,8 @@ jobs:
         run: npm run electron:dist
       - name: Upload Linux Installer as Artifact
         uses: actions/upload-artifact@v4
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           name: qriCard-linux
           path: ./dist/*.AppImage
