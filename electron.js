@@ -6,7 +6,6 @@ let mainWindow;
 let splash;
 
 function createWindow() {
-  // Create the splash screen window
   splash = new BrowserWindow({
     width: 400,
     height: 300,
@@ -33,7 +32,7 @@ function createWindow() {
   });
 
   if (app.isPackaged) {
-    mainWindow.loadFile(path.join(__dirname, "build", "index.html"));
+    mainWindow.loadFile(path.join(__dirname, "index.html"));
   } else {
     mainWindow.loadURL("http://localhost:3000");
   }
