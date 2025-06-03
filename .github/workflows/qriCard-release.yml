@@ -18,18 +18,18 @@ jobs:
         with:
           node-version: "20"
       - name: Creating Windows installer
-        working-directory: ./app
+        working-directory: ./
         run: npm run electron:dist
       - name: List dist folder
-        working-directory: ./app
+        working-directory: ./
         run: dir dist
       - name: Verify dist folder
-        run: dir ./app/dist
+        run: dir .//dist
       - name: Upload Windows Installer as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: qriCard-windows-1.1.0
-          path: ./app/dist/*.msi
+          path: .//dist/*.msi
           if-no-files-found: warn
           retention-days: 7
 
@@ -46,18 +46,18 @@ jobs:
         with:
           node-version: "20"
       - name: Creating macOS installer
-        working-directory: ./app
+        working-directory: ./
         run: npm run electron:dist
       - name: List dist folder
-        working-directory: ./app
+        working-directory: ./
         run: ls dist
       - name: Verify dist folder
-        run: ls ./app/dist
+        run: ls .//dist
       - name: Upload macOS Installer as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: qriCard-mac-1.1.0
-          path: ./app/dist/*.dmg
+          path: .//dist/*.dmg
           if-no-files-found: warn
           retention-days: 7
 
@@ -74,17 +74,17 @@ jobs:
         with:
           node-version: "20"
       - name: Creating Linux installer
-        working-directory: ./app
+        working-directory: ./
         run: npm run electron:dist
       - name: List dist folder
-        working-directory: ./app
+        working-directory: ./
         run: ls dist
       - name: Verify dist folder
-        run: ls ./app/dist
+        run: ls .//dist
       - name: Upload Linux Installer as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: qriCard-linux-1.1.0
-          path: ./app/dist/*.AppImage
+          path: .//dist/*.AppImage
           if-no-files-found: warn
           retention-days: 7
