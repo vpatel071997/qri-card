@@ -8,8 +8,6 @@ on:
 jobs:
   build-windows-release:
     runs-on: windows-latest
-    outputs:
-      artifact: ${{ steps.upload.outputs.artifact-path }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -23,7 +21,6 @@ jobs:
       - name: Creating Windows installer
         run: npm run electron:dist
       - name: Upload Windows Installer as Artifact
-        id: upload
         uses: actions/upload-artifact@v4
         with:
           name: qriCard-windows
