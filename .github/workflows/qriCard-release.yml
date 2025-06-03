@@ -27,7 +27,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: qriCard-windows
-          path: ./dist/*.msi
+          path: ./dist/*.exe
           if-no-files-found: warn
           retention-days: 7
 
@@ -88,25 +88,25 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: qriCard-windows
-          path: ./release
+          path: ./dist
       - name: Download macOS Artifact
         uses: actions/download-artifact@v4
         with:
           name: qriCard-mac
-          path: ./release
+          path: ./dist
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4
         with:
           name: qriCard-linux
-          path: ./release
+          path: ./dist
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           files: |
-            ./release/*.msi
-            ./release/*.dmg
-            ./release/*.AppImage
+            ./dist/*.exe
+            ./dist/*.dmg
+            ./dist/*.AppImage
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
