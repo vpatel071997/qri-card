@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "react-bootstrap";
+import { useNavigate } from "react-router";
 
 function QrBackground() {
   const gridSize = 100;
@@ -57,6 +58,8 @@ function QrBackground() {
 }
 
 function Landing() {
+  const navigate = useNavigate();
+
   return (
     <>
       <div style={{ overflow: "hidden", position: "relative" }}>
@@ -74,14 +77,14 @@ function Landing() {
           </p>
           <div className="d-flex gap-3">
             <Button
-              href="/url-to-qr"
+              onClick={() => navigate("/url-to-qr")}
               variant="primary"
               className="shadow p-3 mb-5 rounded"
             >
               Generate QR Code
             </Button>
             <Button
-              href="/vcard-gen"
+              onClick={() => navigate("/vcard-gen")}
               variant="secondary"
               className="shadow p-3 mb-5 rounded"
             >

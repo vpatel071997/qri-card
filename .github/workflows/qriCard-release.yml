@@ -1,0 +1,90 @@
+name: Build qriCard Installers
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-windows-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13.x"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Creating Windows installer
+        working-directory: ./app
+        run: npm run electron:dist
+      - name: List dist folder
+        working-directory: ./app
+        run: dir dist
+      - name: Verify dist folder
+        run: dir ./app/dist
+      - name: Upload Windows Installer as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qriCard-windows-1.1.0
+          path: ./app/dist/*.msi
+          if-no-files-found: warn
+          retention-days: 7
+
+  build-mac-release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13.x"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Creating macOS installer
+        working-directory: ./app
+        run: npm run electron:dist
+      - name: List dist folder
+        working-directory: ./app
+        run: ls dist
+      - name: Verify dist folder
+        run: ls ./app/dist
+      - name: Upload macOS Installer as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qriCard-mac-1.1.0
+          path: ./app/dist/*.dmg
+          if-no-files-found: warn
+          retention-days: 7
+
+  build-linux-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13.x"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Creating Linux installer
+        working-directory: ./app
+        run: npm run electron:dist
+      - name: List dist folder
+        working-directory: ./app
+        run: ls dist
+      - name: Verify dist folder
+        run: ls ./app/dist
+      - name: Upload Linux Installer as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qriCard-linux-1.1.0
+          path: ./app/dist/*.AppImage
+          if-no-files-found: warn
+          retention-days: 7
