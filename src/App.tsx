@@ -30,7 +30,7 @@ function App() {
           data-bs-theme="light"
         >
           <Container fluid>
-            <Navbar.Brand href="/">QriCard.</Navbar.Brand>
+            <Navbar.Brand onClick={() => navigate("/")}>QriCard.</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse
               className="justify-content-end text-body"
