@@ -98,6 +98,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-router-dom": "^5.3.3",
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "electron": "^36.3.2",
