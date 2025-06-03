@@ -45,7 +45,7 @@
     "eject": "react-scripts eject",
     "lint": "prettier --write .",
     "lint:check": "prettier --check .",
-    "script": "chmod 777 script.sh && script.sh",
+    "script": "bash ./script.sh",
     "electron": "electron .",
     "electron:dev": "concurrently --name \"client\" \"cross-env BROWSER=none npm run start\" --name \"desktop\" \"electron .\"",
     "electron:dist": "npm install && npm run script && npm run build && npm run script && cp electron.js ./build/electron.js && electron-builder"
