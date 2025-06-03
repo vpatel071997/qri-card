@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v1.1.0"
+    branches: [main]
 
 jobs:
   build-windows-release:
