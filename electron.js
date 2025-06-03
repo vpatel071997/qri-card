@@ -1,5 +1,4 @@
 const { app, BrowserWindow } = require("electron");
-const { main } = require("framer-motion/client");
 const path = require("path");
 
 let mainWindow;
