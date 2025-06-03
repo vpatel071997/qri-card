@@ -2,11 +2,14 @@ name: Build qriCard Installers
 
 on:
   push:
-    branches: [main]
+    tags:
+      - "v1.1.0"
 
 jobs:
   build-windows-release:
     runs-on: windows-latest
+    outputs:
+      artifact: ${{ steps.upload.outputs.artifact-path }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -18,17 +21,12 @@ jobs:
         with:
           node-version: "20"
       - name: Creating Windows installer
-        working-directory: ./
         run: npm run electron:dist
-      - name: List dist folder
-        working-directory: ./
-        run: dir dist
-      - name: Verify dist folder
-        run: dir ./dist
       - name: Upload Windows Installer as Artifact
+        id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: qriCard-windows-1.1.0
+          name: qriCard-windows
           path: ./dist/*.msi
           if-no-files-found: warn
           retention-days: 7
@@ -46,17 +44,11 @@ jobs:
         with:
           node-version: "20"
       - name: Creating macOS installer
-        working-directory: ./
         run: npm run electron:dist
-      - name: List dist folder
-        working-directory: ./
-        run: ls dist
-      - name: Verify dist folder
-        run: ls ./dist
       - name: Upload macOS Installer as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: qriCard-mac-1.1.0
+          name: qriCard-mac
           path: ./dist/*.dmg
           if-no-files-found: warn
           retention-days: 7
@@ -74,17 +66,47 @@ jobs:
         with:
           node-version: "20"
       - name: Creating Linux installer
-        working-directory: ./
         run: npm run electron:dist
-      - name: List dist folder
-        working-directory: ./
-        run: ls dist
-      - name: Verify dist folder
-        run: ls ./dist
       - name: Upload Linux Installer as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: qriCard-linux-1.1.0
+          name: qriCard-linux
           path: ./dist/*.AppImage
           if-no-files-found: warn
           retention-days: 7
+
+  release:
+    needs: [build-windows-release, build-mac-release, build-linux-release]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: qriCard-windows
+          path: ./release
+
+      - name: Download macOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: qriCard-mac
+          path: ./release
+
+      - name: Download Linux Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: qriCard-linux
+          path: ./release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          files: |
+            ./release/*.msi
+            ./release/*.dmg
+            ./release/*.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
