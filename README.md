@@ -8,7 +8,7 @@
 
  <img alt="Status" src="https://img.shields.io/badge/status-In Production-green">
 
-  <img alt="Latest Version" src="https://img.shields.io/badge/latest version-1.0.2-2e7f74">
+  <img alt="Latest Version" src="https://img.shields.io/badge/latest version-1.1.0-2e7f74">
   
   <img alt="License" src="https://img.shields.io/badge/license-MIT-d52536">
 
@@ -50,8 +50,16 @@
 
 ### Running the App
 
+#### In web
+
 ```bash
 npm start
+```
+
+#### As Desktop App
+
+```bash
+npm run electron:dev
 ```
 
 The app will be available at [http://localhost:3000](http://localhost:3000).
@@ -83,6 +91,12 @@ docker run -p 3000:80 qri-card
 ```
 
 ---
+
+### Build Desktop release
+
+```bash
+npm run electron:dist
+```
 
 ## Project Structure
 

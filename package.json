@@ -1,5 +1,6 @@
 {
   "name": "qri-card",
+  "version": "1.1.0",
   "description": "Say goodbye to typing in phone numbers or emails—just generate your vCard, share your unique QR code, and connect instantly.",
   "main": "main.js",
   "author": {
@@ -8,7 +9,6 @@
     "url": "https://vpatel.au"
   },
   "license": "MIT",
-  "version": "1.0.2",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
