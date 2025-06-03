@@ -24,12 +24,12 @@ jobs:
         working-directory: ./
         run: dir dist
       - name: Verify dist folder
-        run: dir .//dist
+        run: dir ./dist
       - name: Upload Windows Installer as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: qriCard-windows-1.1.0
-          path: .//dist/*.msi
+          path: ./dist/*.msi
           if-no-files-found: warn
           retention-days: 7
 
@@ -52,12 +52,12 @@ jobs:
         working-directory: ./
         run: ls dist
       - name: Verify dist folder
-        run: ls .//dist
+        run: ls ./dist
       - name: Upload macOS Installer as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: qriCard-mac-1.1.0
-          path: .//dist/*.dmg
+          path: ./dist/*.dmg
           if-no-files-found: warn
           retention-days: 7
 
@@ -80,11 +80,11 @@ jobs:
         working-directory: ./
         run: ls dist
       - name: Verify dist folder
-        run: ls .//dist
+        run: ls ./dist
       - name: Upload Linux Installer as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: qriCard-linux-1.1.0
-          path: .//dist/*.AppImage
+          path: ./dist/*.AppImage
           if-no-files-found: warn
           retention-days: 7
