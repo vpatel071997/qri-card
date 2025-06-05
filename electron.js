@@ -21,7 +21,7 @@ function createWindow() {
     frame: true,
     center: true,
     autoHideMenuBar: true,
-    icon: path.join(__dirname, "public", "icon.png"),
+    icon: path.join(__dirname, "icon.png"),
     title: "Tapflow.",
     webPreferences: {
       contextIsolation: true,
@@ -31,7 +31,7 @@ function createWindow() {
   });
 
   if (app.isPackaged) {
-    mainWindow.loadFile(path.join(__dirname, "build", "index.html"));
+    mainWindow.loadFile(path.join(__dirname, "index.html"));
   } else {
     mainWindow.loadURL("http://localhost:3000");
   }
