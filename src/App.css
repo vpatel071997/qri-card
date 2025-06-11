@@ -22,6 +22,7 @@ body,
     var(--color-bg-light) 0%,
     var(--color-bg-gradient) 100%
   );
+  overflow-x: hidden;
 }
 
 .navbar {
