@@ -46,9 +46,10 @@
     "lint": "prettier --write .",
     "lint:check": "prettier --check .",
     "script": "bash ./script.sh",
+    "electron:build": "bash ./build.sh",
     "electron": "electron .",
     "electron:dev": "concurrently --name \"client\" \"cross-env BROWSER=none npm run start\" --name \"desktop\" \"electron .\"",
-    "electron:dist": "npm install && npm run script && npm run build && npm run script && cp electron.js ./build/electron.js && electron-builder -mwl"
+    "electron:dist": "npm install && npm run script && npm run build && npm run script && cp electron.js ./build/electron.js && npm run electron:build"
   },
   "build": {
     "appId": "com.vpatel071997.qricard",
