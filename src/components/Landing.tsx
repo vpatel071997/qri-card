@@ -70,7 +70,7 @@ function Landing() {
         >
           <h1 className="mb-4 display-1">
             Create and Share Your Digital <br />
-            Busienss Card
+            Business Card
           </h1>
           <p className="mb-4">
             Your one-stop solution for QR code generation and VCard management.
