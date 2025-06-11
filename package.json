@@ -58,26 +58,30 @@
       "electron.js"
     ],
     "directories": {
-      "output": "dist"
+      "output": "dist",
+       "buildResources": "public"
     },
     "win": {
-      "target": [
-        "nsis",
-        "portable"
-      ]
+      "target": "msi",
+      "icon": "public/logo/icon.png"
+    },
+     "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
     },
     "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ]
+      "appId": "com.vpatel071997.tapflow.app",
+      "target": "dmg",
+      "category": "public.app-category.utilities",
+      "icon": "public/logo/icon.png"
     },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ]
-    }
+   "linux": {
+      "target": "AppImage",
+      "category": "Utility",
+      "icon": "public/logo/icon.png",
+      "maintainer": "Vaibhav Patel <vpatel071997@gmail.com>"
+   }
   },
   "eslintConfig": {
     "extends": [
