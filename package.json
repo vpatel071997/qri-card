@@ -59,13 +59,13 @@
     ],
     "directories": {
       "output": "dist",
-       "buildResources": "public"
+      "buildResources": "public"
     },
     "win": {
       "target": "msi",
       "icon": "public/logo/icon.png"
     },
-     "nsis": {
+    "nsis": {
       "oneClick": false,
       "perMachine": true,
       "allowToChangeInstallationDirectory": true
@@ -76,12 +76,12 @@
       "category": "public.app-category.utilities",
       "icon": "public/logo/icon.png"
     },
-   "linux": {
+    "linux": {
       "target": "AppImage",
       "category": "Utility",
       "icon": "public/logo/icon.png",
       "maintainer": "Vaibhav Patel <vpatel071997@gmail.com>"
-   }
+    }
   },
   "eslintConfig": {
     "extends": [
