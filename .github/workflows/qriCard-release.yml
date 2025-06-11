@@ -27,7 +27,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: qriCard-windows
-          path: ./dist/*.exe
+          path: ./dist/*.msi
           if-no-files-found: warn
           retention-days: 7
 
