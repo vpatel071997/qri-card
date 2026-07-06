@@ -38,6 +38,13 @@ Backward-compatibility rules already relied on in production:
 - `VCardView` still supports the legacy plain-query format (`?firstName=…`).
 - Decoding a corrupt/absent token must degrade gracefully (render "Contact"),
   never throw.
+- The `/vcard-view` and `/link` routes and the `public/_redirects` SPA fallback
+  must keep existing — a shared-link QR 404s without them. Guarded by
+  `src/App.test.tsx`.
+
+Beyond code, printed cards also depend on the domain, hosting, and routes
+staying alive — see [`RUNBOOK.md`](./RUNBOOK.md) for the ops checklist and
+incident triage.
 
 ## Commands
 

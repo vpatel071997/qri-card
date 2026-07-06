@@ -33,6 +33,8 @@
 > QR codes get printed onto physical cards, so the URL/field format is a frozen
 > contract — breaking it breaks cards already in customers' hands. The
 > golden-fixture tests guard it; a failing one means _don't edit the fixture_.
+> For the domain/hosting/route side of keeping printed cards alive, see
+> [`RUNBOOK.md`](./RUNBOOK.md).
 
 ### Prerequisites
 
