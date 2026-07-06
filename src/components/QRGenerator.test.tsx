@@ -44,16 +44,19 @@ describe("QRGenerator component", () => {
     expect(download).toBeDisabled();
   });
 
-  it("gates the Generate button behind the Terms checkbox", () => {
+  it("gates the Generate and Copy-link buttons behind the Terms checkbox", () => {
     render(<QRGenerator />);
     fireEvent.change(screen.getByPlaceholderText("https://"), {
       target: { value: "https://example.com" },
     });
     const generate = screen.getByRole("button", { name: /Generate/i });
+    const copy = screen.getByRole("button", { name: /Copy link/i });
     expect(generate).toBeDisabled();
+    expect(copy).toBeDisabled();
 
     fireEvent.click(screen.getByRole("checkbox"));
     expect(generate).not.toBeDisabled();
+    expect(copy).not.toBeDisabled();
   });
 
   it("renders the Disclaimer & Privacy section with terms and privacy", () => {
