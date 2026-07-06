@@ -1,0 +1,72 @@
+# PR quality gate.
+#
+# `main` (and `staging`) branch protection require these two status checks:
+#   - synivo-ci / ci (pull_request)
+#   - synivo-ci / enforce-source (pull_request)
+# The workflow that produced them (the old synivo-ci.yml) was deleted, so no
+# PR could satisfy the requirement and every API merge was blocked. This
+# recreates it. The context name is "<workflow name> / <job id> (<event>)",
+# so the `name:` and job ids below must stay exactly `synivo-ci`, `ci`,
+# `enforce-source` to match the protected-branch config.
+#
+# NOTE: `enforce-source` is a best-effort reconstruction — the original job's
+# policy is not recoverable from git history. It currently guards the
+# printed-card safety files. Replace its body with your real source policy if
+# it enforced something else (e.g. mirror/sync integrity).
+name: synivo-ci
+
+on:
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        # Mirror the deploy job: test libs live in "dependencies", and the
+        # Electron toolchain (devDependencies) pulls an SSH git dep that stalls
+        # CI, so omit dev + optional.
+        run: npm ci --omit=optional --omit=dev || npm install --omit=dev
+      - name: Test (blocks merge on failure)
+        env:
+          CI: "true" # single, non-interactive run
+        run: npm test -- --watchAll=false
+      - name: Build (CRA)
+        env:
+          CI: "false" # don't fail the build on lint warnings
+        run: npm run build
+
+  enforce-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Printed-card guardrails must not be removed
+        # These files protect QR codes already printed for customers. Deleting
+        # them would silently drop the safety net, so a PR that removes any of
+        # them fails this required check. See CLAUDE.md / RUNBOOK.md.
+        run: |
+          set -e
+          required=(
+            "src/utils/vcard.ts"
+            "src/utils/vcard.test.tsx"
+            "src/utils/vCardFields.test.tsx"
+            "src/utils/vcardTemplates.test.tsx"
+            "src/components/VCardView.test.tsx"
+            "src/App.test.tsx"
+            "public/_redirects"
+            "CLAUDE.md"
+          )
+          missing=0
+          for f in "${required[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Missing printed-card guardrail: $f"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "Do not remove the files that protect already-printed cards."
+            exit 1
+          fi
+          echo "All printed-card guardrails present."
