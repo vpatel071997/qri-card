@@ -290,13 +290,13 @@ a:hover {
 /* ------------------------------ Inputs ------------------------------ */
 .qr-input {
   width: 100%;
-  padding: 0.8rem 0.9rem;
+  padding: 0.55rem 0.75rem;
   border: 1px solid var(--border-strong);
-  border-radius: 10px;
+  border-radius: 9px;
   background: #fff;
   color: var(--ink);
   font-family: inherit;
-  font-size: 0.98rem;
+  font-size: 0.9rem;
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease;
@@ -311,7 +311,7 @@ a:hover {
 }
 textarea.qr-input {
   resize: vertical;
-  min-height: 84px;
+  min-height: 64px;
 }
 
 .vcard-groups {
@@ -371,13 +371,13 @@ textarea.qr-input {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding: 0.8rem 0.9rem;
+  padding: 0.55rem 0.75rem;
   border: 1px solid var(--border-strong);
-  border-radius: 10px;
+  border-radius: 9px;
   background: #fff;
   color: var(--ink);
   font-family: inherit;
-  font-size: 0.98rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition:
     border-color 0.15s ease,
@@ -936,16 +936,15 @@ textarea.qr-input {
   place-items: center;
   cursor: pointer;
   overflow: hidden;
-  background:
-    conic-gradient(
-      from 0deg,
-      #ef4444,
-      #f59e0b,
-      #16a34a,
-      #2563eb,
-      #a855f7,
-      #ef4444
-    );
+  background: conic-gradient(
+    from 0deg,
+    #ef4444,
+    #f59e0b,
+    #16a34a,
+    #2563eb,
+    #a855f7,
+    #ef4444
+  );
 }
 .color-custom input[type="color"] {
   position: absolute;
@@ -1179,6 +1178,15 @@ textarea.qr-input {
 .template-swatch.tpl-dark .template-swatch-avatar {
   background: #2563eb;
 }
+.template-swatch.tpl-orange {
+  background: linear-gradient(135deg, #ea580c, #f59e0b);
+}
+.template-swatch.tpl-green {
+  background: linear-gradient(135deg, #15803d, #22c55e);
+}
+.template-swatch.tpl-red {
+  background: linear-gradient(135deg, #b91c1c, #ef4444);
+}
 
 @media (max-width: 560px) {
   .nav-powered {
@@ -1403,6 +1411,95 @@ a.vcard-row-value {
 }
 .vcard-view.tpl-dark .vcard-brand {
   color: #94a3b8;
+}
+
+/* Colored gradient headers — orange / green / red.
+   Each mirrors the Modern layout with a different hero gradient + accent. */
+.vcard-view.tpl-orange .vcard-hero {
+  background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);
+  border-bottom: none;
+}
+.vcard-view.tpl-orange .vcard-name {
+  color: #fff;
+}
+.vcard-view.tpl-orange .vcard-org {
+  color: rgba(255, 255, 255, 0.85);
+}
+.vcard-view.tpl-orange .vcard-initials {
+  background: #fff;
+  color: #c2410c;
+}
+.vcard-view.tpl-orange .vcard-add {
+  background: #fff;
+  color: #c2410c;
+}
+.vcard-view.tpl-orange .vcard-add:hover:not(:disabled) {
+  background: #fff7ed;
+}
+.vcard-view.tpl-orange .vcard-row-icon {
+  background: #ffedd5;
+  color: #c2410c;
+}
+.vcard-view.tpl-orange a.vcard-row-value {
+  color: #c2410c;
+}
+
+.vcard-view.tpl-green .vcard-hero {
+  background: linear-gradient(135deg, #15803d 0%, #22c55e 100%);
+  border-bottom: none;
+}
+.vcard-view.tpl-green .vcard-name {
+  color: #fff;
+}
+.vcard-view.tpl-green .vcard-org {
+  color: rgba(255, 255, 255, 0.85);
+}
+.vcard-view.tpl-green .vcard-initials {
+  background: #fff;
+  color: #15803d;
+}
+.vcard-view.tpl-green .vcard-add {
+  background: #fff;
+  color: #15803d;
+}
+.vcard-view.tpl-green .vcard-add:hover:not(:disabled) {
+  background: #f0fdf4;
+}
+.vcard-view.tpl-green .vcard-row-icon {
+  background: #dcfce7;
+  color: #15803d;
+}
+.vcard-view.tpl-green a.vcard-row-value {
+  color: #15803d;
+}
+
+.vcard-view.tpl-red .vcard-hero {
+  background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
+  border-bottom: none;
+}
+.vcard-view.tpl-red .vcard-name {
+  color: #fff;
+}
+.vcard-view.tpl-red .vcard-org {
+  color: rgba(255, 255, 255, 0.85);
+}
+.vcard-view.tpl-red .vcard-initials {
+  background: #fff;
+  color: #b91c1c;
+}
+.vcard-view.tpl-red .vcard-add {
+  background: #fff;
+  color: #b91c1c;
+}
+.vcard-view.tpl-red .vcard-add:hover:not(:disabled) {
+  background: #fef2f2;
+}
+.vcard-view.tpl-red .vcard-row-icon {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.vcard-view.tpl-red a.vcard-row-value {
+  color: #b91c1c;
 }
 
 /* --------------------------- Link redirect --------------------------- */
