@@ -25,7 +25,7 @@ describe("QRGenerator component", () => {
     expect(document.querySelector("svg")).toBeInTheDocument();
   });
 
-  it("keeps the download button disabled until there is content", () => {
+  it("keeps download disabled until there is content AND terms are accepted", () => {
     render(<QRGenerator />);
     const download = screen.getByRole("button", { name: /Download QR Code/i });
     expect(download).toBeDisabled();
@@ -33,7 +33,40 @@ describe("QRGenerator component", () => {
     fireEvent.change(screen.getByPlaceholderText("https://"), {
       target: { value: "https://example.com" },
     });
+    // Content alone is not enough — the Terms checkbox gates output.
+    expect(download).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("checkbox"));
     expect(download).not.toBeDisabled();
+
+    // Un-checking re-disables it.
+    fireEvent.click(screen.getByRole("checkbox"));
+    expect(download).toBeDisabled();
+  });
+
+  it("gates the Generate button behind the Terms checkbox", () => {
+    render(<QRGenerator />);
+    fireEvent.change(screen.getByPlaceholderText("https://"), {
+      target: { value: "https://example.com" },
+    });
+    const generate = screen.getByRole("button", { name: /Generate/i });
+    expect(generate).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("checkbox"));
+    expect(generate).not.toBeDisabled();
+  });
+
+  it("renders the Disclaimer & Privacy section with terms and privacy", () => {
+    render(<QRGenerator />);
+    expect(
+      screen.getByRole("heading", { name: /Disclaimer & Privacy/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Terms & limitations/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Privacy policy/i }),
+    ).toBeInTheDocument();
   });
 
   it("opens a format menu offering PNG, SVG and PDF", () => {
@@ -41,6 +74,7 @@ describe("QRGenerator component", () => {
     fireEvent.change(screen.getByPlaceholderText("https://"), {
       target: { value: "https://example.com" },
     });
+    fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: /Download QR Code/i }));
 
     const menu = screen.getByRole("menu");

@@ -34,6 +34,21 @@ export const VCARD_TEMPLATES: VCardTemplate[] = [
     label: "Dark",
     description: "Dark background with high-contrast text.",
   },
+  {
+    id: "orange",
+    label: "Orange",
+    description: "Warm orange gradient header.",
+  },
+  {
+    id: "green",
+    label: "Green",
+    description: "Fresh green gradient header.",
+  },
+  {
+    id: "red",
+    label: "Red",
+    description: "Bold red gradient header.",
+  },
 ];
 
 export const DEFAULT_TEMPLATE_ID = "classic";
