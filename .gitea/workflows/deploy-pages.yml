@@ -1,0 +1,40 @@
+name: Deploy to Cloudflare Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        # Test libraries (@testing-library, jest via react-scripts) live in
+        # "dependencies", so --omit=dev still installs everything tests need
+        # while skipping the Electron toolchain that stalls CI.
+        run: npm ci --omit=optional --omit=dev || npm install --omit=dev
+      - name: Run tests
+        # Guards the printed-card contract (vcard encoding, field schema,
+        # templates). A failure here BLOCKS the deploy below.
+        env:
+          CI: "true" # single run, non-interactive
+        run: npm test -- --watchAll=false
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        # Web/Pages build doesn't need the Electron toolchain (devDependencies),
+        # which pulls an SSH git dep (@electron/node-gyp) that stalls CI.
+        run: npm ci --omit=optional --omit=dev || npm install --omit=dev
+      - name: Build (CRA)
+        env:
+          CI: "false" # CRA treats warnings as errors under CI=true; don't fail the build on lint warnings
+        run: npm run build
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@3 pages deploy build --project-name=qri-card --branch=main --commit-dirty=true

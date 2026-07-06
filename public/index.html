@@ -2,20 +2,84 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#0f766e" />
+
+    <!-- Primary meta -->
+    <title>QriCard — Free QR Code &amp; Digital vCard Generator</title>
     <meta
       name="description"
-      content="Say goodbye to typing in phone numbers or emails—just generate your vCard, share your unique QR code, and connect instantly."
+      content="Create free QR codes for any link or a shareable digital business card (vCard) in seconds. Customize the frame, shape, and color, then download as PNG, SVG, or PDF. No sign-up, runs entirely in your browser."
     />
+    <meta
+      name="keywords"
+      content="QR code generator, free QR code, vCard generator, digital business card, QR code maker, contact QR code, download QR code PNG SVG PDF"
+    />
+    <meta name="author" content="Synivo" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://qr.synivo.com.au/" />
+
+    <!-- Icons / manifest -->
+    <link rel="icon" href="%PUBLIC_URL%/icon.png" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/icon.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>QriCard | Generate your QR/vCard</title>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="QriCard" />
+    <meta
+      property="og:title"
+      content="QriCard — Free QR Code &amp; Digital vCard Generator"
+    />
+    <meta
+      property="og:description"
+      content="Create free QR codes for any link or a shareable digital business card in seconds. Download as PNG, SVG, or PDF. No sign-up."
+    />
+    <meta property="og:url" content="https://qr.synivo.com.au/" />
+    <meta property="og:image" content="https://qr.synivo.com.au/icon.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="QriCard — Free QR Code &amp; Digital vCard Generator"
+    />
+    <meta
+      name="twitter:description"
+      content="Create free QR codes for any link or a shareable digital business card in seconds. Download as PNG, SVG, or PDF. No sign-up."
+    />
+    <meta name="twitter:image" content="https://qr.synivo.com.au/icon.png" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "QriCard",
+        "url": "https://qr.synivo.com.au/",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "description": "Free QR code and digital vCard generator. Create QR codes for any link or contact card, customize the design, and download as PNG, SVG, or PDF.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "AUD"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "Synivo",
+          "url": "https://synivo.tech/"
+        }
+      }
+    </script>
   </head>
 
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      QriCard needs JavaScript to generate QR codes. Please enable JavaScript in
+      your browser to continue.
+    </noscript>
     <div id="app"></div>
   </body>
 </html>

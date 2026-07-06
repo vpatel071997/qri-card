@@ -1,68 +1,90 @@
 import { useEffect, useState } from "react";
-import {
-  Routes,
-  Route,
-  Link,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
-import { Button, Container, Nav, Navbar } from "react-bootstrap";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { QrCodeScan, QuestionCircle } from "react-bootstrap-icons";
 
-import Landing from "./components/Landing";
-import URLToQR from "./components/URLToQR";
-import VCardGen from "./components/VCardGen";
+import QRGenerator from "./components/QRGenerator";
 import VCardView from "./components/VCardView";
+import LinkRedirect from "./components/LinkRedirect";
+
+const CHROMELESS_PATHS = ["/vcard-view", "/link"];
 
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [showNavBar, setShowNavBar] = useState<boolean>(true);
+  const [showChrome, setShowChrome] = useState<boolean>(true);
 
   useEffect(() => {
-    setShowNavBar(location.pathname !== "/vcard-view");
+    setShowChrome(!CHROMELESS_PATHS.includes(location.pathname));
   }, [location.pathname]);
 
   return (
-    <div>
-      {showNavBar && (
-        <Navbar
-          className="bg-body-tertiary border-bottom shadow p-3 mb-5 bg-white rounded"
-          data-bs-theme="light"
-        >
-          <Container fluid>
-            <Navbar.Brand onClick={() => navigate("/")}>QriCard.</Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse
-              className="justify-content-end text-body"
-              style={{ gap: "1rem" }}
+    <div className="app-shell">
+      {showChrome && (
+        <header className="site-nav">
+          <div className="site-nav-inner">
+            <button
+              type="button"
+              className="brand"
+              onClick={() => navigate("/")}
+              aria-label="QriCard home"
             >
-              <Nav.Link as={Link} to="url-to-qr">
-                Url to QR
-              </Nav.Link>
-              <Button variant="primary" onClick={() => navigate("/vcard-gen")}>
-                VCard Generator
-              </Button>
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
-      )}
-      <Container fluid>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/url-to-qr" element={<URLToQR />} />
-          <Route path="/vcard-gen" element={<VCardGen />} />
-          <Route path="/vcard-view" element={<VCardView />} />
-        </Routes>
-      </Container>
+              <span className="brand-mark">
+                <QrCodeScan size={22} aria-hidden />
+              </span>
+              <span className="brand-name">QriCard</span>
+            </button>
 
-      <footer className="text-center text-muted bg-transparent font-italic">
-        <p className="font-italic">
-          Created by{" "}
-          <a href="https://vpatel.au" target="_blank" rel="noopener noreferrer">
-            Vaibhav Patel
-          </a>
-        </p>
-      </footer>
+            <div className="site-nav-right">
+              <button
+                type="button"
+                className="nav-help"
+                onClick={() =>
+                  window.dispatchEvent(new CustomEvent("qricard:open-help"))
+                }
+              >
+                <QuestionCircle size={16} aria-hidden />
+                <span>Help</span>
+              </button>
+
+              <p className="nav-powered">
+                Powered by{" "}
+                <a
+                  href="https://synivo.tech/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Synivo
+                </a>
+              </p>
+            </div>
+          </div>
+        </header>
+      )}
+
+      <main>
+        <Routes>
+          <Route path="/" element={<QRGenerator />} />
+          <Route path="/url-to-qr" element={<QRGenerator />} />
+          <Route path="/vcard-gen" element={<QRGenerator />} />
+          <Route path="/vcard-view" element={<VCardView />} />
+          <Route path="/link" element={<LinkRedirect />} />
+        </Routes>
+      </main>
+
+      {showChrome && (
+        <footer className="site-footer">
+          <p>
+            Created by{" "}
+            <a
+              href="https://synivo.tech/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Synivo
+            </a>
+          </p>
+        </footer>
+      )}
     </div>
   );
 }
