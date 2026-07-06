@@ -253,45 +253,11 @@ export default function QRGenerator() {
   const qrNodeRef = useRef<HTMLDivElement>(null);
   const qrStyling = useRef<QRCodeStyling | null>(null);
 
-  // The QR itself carries the raw payload — readable plain-text contact details
-  // grouped by category (what shows when someone scans it).
-  const vCardText = useMemo(() => {
-    const g = (id: string) => (vCard[id] ?? "").trim();
-    const hasAny = Object.values(vCard).some((v) => v && v.trim() !== "");
-    if (!hasAny) return "";
-
-    const nameIds = ["1", "2", "3", "4"];
-    const blocks: string[] = [];
-
-    VCARD_GROUPS.forEach((group) => {
-      const lines: string[] = [];
-
-      if (group.ids.some((id) => nameIds.includes(id))) {
-        const name = nameIds
-          .map((id) => g(id))
-          .filter(Boolean)
-          .join(" ");
-        if (name) lines.push(`Name :- ${name}`);
-      }
-
-      group.ids.forEach((id) => {
-        if (nameIds.includes(id)) return;
-        const field = vCardFields.find((f) => f.id === id);
-        const value = g(id);
-        if (field && value) lines.push(`${field.label} :- ${value}`);
-      });
-
-      if (lines.length) {
-        blocks.push(`${group.title}\r\n${lines.join("\r\n")}`);
-      }
-    });
-
-    return blocks.join("\r\n\r\n");
-  }, [vCard]);
-
-  // The Copy-link button copies a shareable page URL instead of the raw payload:
-  //  - v-card -> /vcard-view?data=... (renders the contact + Add to Contacts)
-  //  - link   -> /link?url=...       (redirects the visitor to the target)
+  // Both the QR image and the Copy-link button point at a shareable page URL
+  // rather than raw contact text, so a scan opens the hosted v-card preview
+  // (with the selected template) instead of dumping plain text into Notes:
+  //  - v-card -> /vcard-view?data=...&t=... (renders the contact + Add to Contacts)
+  //  - link   -> /link?url=...              (redirects the visitor to the target)
   // Both formats are the printed-card contract — see utils/vcard.ts.
   const vCardShareUrl = useMemo(
     () => buildVCardShareUrl(window.location.origin, vCard, template),
@@ -303,7 +269,7 @@ export default function QRGenerator() {
     [url],
   );
 
-  const qrValue = type === "link" ? url.trim() : vCardText;
+  const qrValue = type === "link" ? url.trim() : vCardShareUrl;
   const copyValue = type === "link" ? linkRedirectUrl : vCardShareUrl;
   const hasValue = qrValue.length > 0;
 
