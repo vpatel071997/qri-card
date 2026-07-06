@@ -29,6 +29,11 @@
 
 ## Development/Contribution - Getting Started
 
+> ⚠️ **Before changing how v-cards or links are encoded**, read [`CLAUDE.md`](./CLAUDE.md).
+> QR codes get printed onto physical cards, so the URL/field format is a frozen
+> contract — breaking it breaks cards already in customers' hands. The
+> golden-fixture tests guard it; a failing one means _don't edit the fixture_.
+
 ### Prerequisites
 
 - Node.js (v20 or newer recommended)
