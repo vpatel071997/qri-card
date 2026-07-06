@@ -444,7 +444,7 @@ export default function QRGenerator() {
   };
 
   const handleCopy = () => {
-    if (!copyValue) return;
+    if (!copyValue || !agreedToTerms) return;
     navigator.clipboard?.writeText(copyValue).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
@@ -979,7 +979,7 @@ export default function QRGenerator() {
             type="button"
             className="link-copy"
             onClick={handleCopy}
-            disabled={!hasValue}
+            disabled={!canOutput}
           >
             {copied ? (
               <>
