@@ -1062,6 +1062,23 @@ export default function QRGenerator() {
         )}
       </section>
 
+      {/* ------------------------------- About ------------------------------ */}
+      <section className="panel about-card">
+        <div className="section-head">
+          <span className="section-icon">
+            <InfoCircle size={20} aria-hidden />
+          </span>
+          <h2>About QriCard</h2>
+        </div>
+        <p>
+          QriCard is a free, no-sign-up tool to generate QR codes for links and
+          shareable digital business cards. Everything runs right in your
+          browser — your data never leaves your device. Customize the frame,
+          shape, and color, then download a crisp PNG, SVG, or PDF in a single
+          click.
+        </p>
+      </section>
+
       {/* --------------------- Disclaimer & Privacy ------------------------ */}
       <section className="panel disclaimer-card" id="disclaimer">
         <div className="section-head">
@@ -1114,23 +1131,6 @@ export default function QRGenerator() {
             <li>No accounts, no ads, and no tracking cookies.</li>
           </ul>
         </div>
-      </section>
-
-      {/* ------------------------------- About ------------------------------ */}
-      <section className="panel about-card">
-        <div className="section-head">
-          <span className="section-icon">
-            <InfoCircle size={20} aria-hidden />
-          </span>
-          <h2>About QriCard</h2>
-        </div>
-        <p>
-          QriCard is a free, no-sign-up tool to generate QR codes for links and
-          shareable digital business cards. Everything runs right in your
-          browser — your data never leaves your device. Customize the frame,
-          shape, and color, then download a crisp PNG, SVG, or PDF in a single
-          click.
-        </p>
       </section>
     </div>
   );
