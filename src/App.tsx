@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import { QrCodeScan } from "react-bootstrap-icons";
+import { QrCodeScan, QuestionCircle } from "react-bootstrap-icons";
 
 import QRGenerator from "./components/QRGenerator";
 import VCardView from "./components/VCardView";
@@ -33,6 +33,30 @@ function App() {
               </span>
               <span className="brand-name">QriCard</span>
             </button>
+
+            <div className="site-nav-right">
+              <button
+                type="button"
+                className="nav-help"
+                onClick={() =>
+                  window.dispatchEvent(new CustomEvent("qricard:open-help"))
+                }
+              >
+                <QuestionCircle size={16} aria-hidden />
+                <span>Help</span>
+              </button>
+
+              <p className="nav-powered">
+                Powered by{" "}
+                <a
+                  href="https://synivo.tech/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Synivo
+                </a>
+              </p>
+            </div>
           </div>
         </header>
       )}

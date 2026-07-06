@@ -92,6 +92,20 @@ a:hover {
   letter-spacing: -0.01em;
 }
 
+.nav-powered {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.nav-powered a {
+  color: var(--green-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+.nav-powered a:hover {
+  text-decoration: underline;
+}
+
 .site-nav-links {
   display: flex;
   align-items: center;
@@ -506,6 +520,78 @@ textarea.qr-input {
 .link-copy:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ----------------------- Reset / Clear all row ----------------------- */
+.step-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}
+.step-actions .ghost-btn {
+  margin-top: 0;
+}
+.ghost-btn--danger {
+  color: #dc2626;
+  border-color: #f3c6c6;
+}
+.ghost-btn--danger:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+/* --------------------------- Field errors --------------------------- */
+.qr-input.is-invalid,
+.qr-input.is-invalid:focus {
+  border-color: #ef4444;
+}
+.field-error {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #ef4444;
+}
+
+/* ------------------------ Download format menu ---------------------- */
+.download-menu {
+  position: relative;
+  width: 100%;
+}
+.download-menu .primary-btn {
+  width: 100%;
+}
+.download-options {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(100% + 0.4rem);
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.download-option {
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.download-option:hover {
+  background: var(--green-soft);
+  color: var(--green-dark);
 }
 
 /* ---------------------------- QR preview ---------------------------- */
@@ -947,6 +1033,162 @@ textarea.qr-input {
   color: var(--muted) !important;
 }
 
+/* -------------------- Header right cluster + Help ------------------- */
+.site-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.nav-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.nav-help:hover {
+  background: var(--green-soft);
+  border-color: var(--green);
+  color: var(--green-dark);
+  text-decoration: none;
+}
+
+/* ---------------------- Collapsible Help card ---------------------- */
+.help-toggle {
+  width: 100%;
+  padding: 0;
+  margin-bottom: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.help-caret {
+  margin-left: auto;
+  color: var(--muted);
+  transition: transform 0.2s ease;
+}
+.help-caret.is-open {
+  transform: rotate(180deg);
+}
+.help-card .help-steps {
+  margin-top: 1.4rem;
+}
+
+/* ------------------------ V-card template picker -------------------- */
+.template-section .sub-label {
+  margin-top: 0.35rem;
+}
+.template-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+}
+.template-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.template-card:hover {
+  border-color: #c2ccda;
+}
+.template-card.is-active {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px var(--green-soft);
+}
+.template-swatch {
+  width: 100%;
+  height: 74px;
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  overflow: hidden;
+}
+.template-swatch-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+}
+.template-swatch-line {
+  width: 54%;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.75);
+}
+.template-swatch-line.short {
+  width: 34%;
+}
+.template-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.template-swatch.tpl-classic {
+  background: linear-gradient(180deg, var(--green-soft), #fff);
+}
+.template-swatch.tpl-classic .template-swatch-avatar {
+  background: var(--green);
+}
+.template-swatch.tpl-classic .template-swatch-line {
+  background: #cbd5e1;
+}
+.template-swatch.tpl-modern {
+  background: linear-gradient(135deg, #4a0fb0, #2563eb);
+}
+.template-swatch.tpl-minimal {
+  background: #f3f4f6;
+}
+.template-swatch.tpl-minimal .template-swatch-avatar {
+  background: #111827;
+}
+.template-swatch.tpl-minimal .template-swatch-line {
+  background: #cbd5e1;
+}
+.template-swatch.tpl-dark {
+  background: linear-gradient(180deg, #1b264a, #111a2e);
+}
+.template-swatch.tpl-dark .template-swatch-avatar {
+  background: #2563eb;
+}
+
+@media (max-width: 560px) {
+  .nav-powered {
+    display: none;
+  }
+  .site-nav-right {
+    gap: 0.75rem;
+  }
+}
+
 /* ---------------------------- VCard view ---------------------------- */
 .vcard-view {
   max-width: 480px;
@@ -1057,6 +1299,112 @@ a.vcard-row-value {
   color: var(--muted);
 }
 
+/* ---------------------- V-card templates (view) --------------------- */
+/* classic = default styles above. */
+
+/* Modern — vivid gradient header */
+.vcard-view.tpl-modern .vcard-hero {
+  background: linear-gradient(135deg, #4a0fb0 0%, #2563eb 100%);
+  border-bottom: none;
+}
+.vcard-view.tpl-modern .vcard-name {
+  color: #fff;
+}
+.vcard-view.tpl-modern .vcard-org {
+  color: rgba(255, 255, 255, 0.85);
+}
+.vcard-view.tpl-modern .vcard-initials {
+  background: #fff;
+  color: #4a0fb0;
+}
+.vcard-view.tpl-modern .vcard-add {
+  background: #fff;
+  color: #4a0fb0;
+}
+.vcard-view.tpl-modern .vcard-add:hover:not(:disabled) {
+  background: #f1efff;
+}
+.vcard-view.tpl-modern .vcard-row-icon {
+  background: #ede9fe;
+  color: #4a0fb0;
+}
+.vcard-view.tpl-modern a.vcard-row-value {
+  color: #4a0fb0;
+}
+
+/* Minimal — monochrome, no accent colors */
+.vcard-view.tpl-minimal .vcard-hero {
+  background: #fff;
+}
+.vcard-view.tpl-minimal .vcard-initials {
+  background: #111827;
+}
+.vcard-view.tpl-minimal .vcard-add {
+  background: #111827;
+}
+.vcard-view.tpl-minimal .vcard-add:hover:not(:disabled) {
+  background: #000;
+}
+.vcard-view.tpl-minimal .vcard-row-icon {
+  background: #f3f4f6;
+  color: #374151;
+}
+.vcard-view.tpl-minimal a.vcard-row-value {
+  color: #111827;
+  text-decoration: underline;
+}
+
+/* Dark — dark background, high contrast */
+.vcard-view.tpl-dark {
+  background: #0b1220;
+}
+.vcard-view.tpl-dark .vcard-card {
+  background: #111a2e;
+  border-color: #223052;
+}
+.vcard-view.tpl-dark .vcard-hero {
+  background: linear-gradient(180deg, #1b264a 0%, #111a2e 100%);
+  border-bottom-color: #223052;
+}
+.vcard-view.tpl-dark .vcard-name {
+  color: #f1f5f9;
+}
+.vcard-view.tpl-dark .vcard-org {
+  color: #94a3b8;
+}
+.vcard-view.tpl-dark .vcard-avatar {
+  border-color: #223052;
+}
+.vcard-view.tpl-dark .vcard-initials {
+  background: #2563eb;
+  color: #fff;
+}
+.vcard-view.tpl-dark .vcard-add {
+  background: #2563eb;
+}
+.vcard-view.tpl-dark .vcard-add:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+.vcard-view.tpl-dark .vcard-row {
+  border-bottom-color: #223052;
+}
+.vcard-view.tpl-dark .vcard-row-icon {
+  background: #1b264a;
+  color: #93c5fd;
+}
+.vcard-view.tpl-dark .vcard-row-label {
+  color: #94a3b8;
+}
+.vcard-view.tpl-dark .vcard-row-value {
+  color: #e2e8f0;
+}
+.vcard-view.tpl-dark a.vcard-row-value {
+  color: #93c5fd;
+}
+.vcard-view.tpl-dark .vcard-brand {
+  color: #94a3b8;
+}
+
 /* --------------------------- Link redirect --------------------------- */
 .redirect-view {
   min-height: 100vh;
@@ -1111,13 +1459,26 @@ a.vcard-row-value {
 }
 
 /* ---------------------------- Responsive ---------------------------- */
+/* Generate button is only used on mobile to reveal the preview. */
+.generate-btn {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .qr-grid {
     grid-template-columns: 1fr;
   }
   .qr-preview {
     position: static;
-    order: -1;
+    /* Sit below the builder, directly under "Design your QR Code". */
+    order: 0;
+  }
+  /* Keep "Your QR Code" hidden until the user taps Generate. */
+  .qr-preview:not(.is-generated) {
+    display: none;
+  }
+  .generate-btn {
+    display: inline-flex;
   }
 }
 

@@ -4,7 +4,24 @@ on:
     branches: [main]
   workflow_dispatch:
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        # Test libraries (@testing-library, jest via react-scripts) live in
+        # "dependencies", so --omit=dev still installs everything tests need
+        # while skipping the Electron toolchain that stalls CI.
+        run: npm ci --omit=optional --omit=dev || npm install --omit=dev
+      - name: Run tests
+        # Guards the printed-card contract (vcard encoding, field schema,
+        # templates). A failure here BLOCKS the deploy below.
+        env:
+          CI: "true" # single run, non-interactive
+        run: npm test -- --watchAll=false
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

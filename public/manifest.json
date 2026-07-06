@@ -1,6 +1,7 @@
 {
-  "short_name": "qri-card",
-  "name": "Say goodbye to typing in phone numbers or emails—just generate your vCard, share your unique QR code, and connect instantly.",
+  "short_name": "QriCard",
+  "name": "QriCard — Free QR Code & Digital vCard Generator",
+  "description": "Create free QR codes for any link or a shareable digital business card. Download as PNG, SVG, or PDF. No sign-up.",
   "icons": [
     {
       "src": "icon.png",
@@ -20,6 +21,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#0f766e",
   "background_color": "#ffffff"
 }

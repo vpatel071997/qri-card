@@ -14,10 +14,13 @@ import {
   Facebook,
   JournalText,
 } from "react-bootstrap-icons";
-import LZString from "lz-string";
-
 import { VCardProps } from "../utils/props";
 import { vCardFields } from "../utils/vCardFields";
+import { decodeVCardData } from "../utils/vcard";
+import {
+  DEFAULT_TEMPLATE_ID,
+  normalizeTemplateId,
+} from "../utils/vcardTemplates";
 
 type DetailItem = {
   key: string;
@@ -29,28 +32,18 @@ type DetailItem = {
 
 export default function VCardView() {
   const [vCard, setVCard] = useState<VCardProps | null>();
+  const [template, setTemplate] = useState<string>(DEFAULT_TEMPLATE_ID);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     let vCardData: VCardProps = {};
 
+    // Pre-selected card style baked into the QR link (?t=<template>).
+    setTemplate(normalizeTemplateId(searchParams.get("t")));
+
     if (searchParams.has("data")) {
-      try {
-        const compressed = searchParams.get("data") || "";
-        const json = LZString.decompressFromEncodedURIComponent(compressed);
-        if (json) {
-          vCardData = JSON.parse(json);
-          const mappedData: VCardProps = {};
-          vCardFields.forEach((field) => {
-            if (vCardData[field.id]) {
-              mappedData[field.name] = vCardData[field.id];
-            }
-          });
-          vCardData = mappedData;
-        }
-      } catch (e) {
-        console.error("Failed to decompress vCard data", e);
-      }
+      // Shared, compressed format — the printed-card contract (utils/vcard.ts).
+      vCardData = decodeVCardData(searchParams.get("data") || "");
     } else {
       const seen = new Set<string>();
       searchParams.forEach((value, key) => {
@@ -271,7 +264,7 @@ export default function VCardView() {
   }
 
   return (
-    <div className="vcard-view">
+    <div className={`vcard-view tpl-${template}`}>
       <div className="vcard-card">
         <div className="vcard-hero">
           {vCard?.photoUrl ? (

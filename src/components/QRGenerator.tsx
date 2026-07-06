@@ -3,8 +3,8 @@ import QRCodeStyling, {
   DotType,
   CornerSquareType,
 } from "qr-code-styling";
-import { toPng } from "html-to-image";
-import LZString from "lz-string";
+import { toPng, toSvg } from "html-to-image";
+import { jsPDF } from "jspdf";
 import {
   Link45deg,
   PersonVcard,
@@ -20,17 +20,72 @@ import {
   Palette,
   Clipboard,
   ClipboardCheck,
+  Trash,
   Download as DownloadIcon,
 } from "react-bootstrap-icons";
 
 import { VCardProps } from "../utils/props";
 import { vCardFields } from "../utils/vCardFields";
+import { buildVCardShareUrl, buildLinkRedirectUrl } from "../utils/vcard";
+import {
+  VCARD_TEMPLATES,
+  DEFAULT_TEMPLATE_ID,
+} from "../utils/vcardTemplates";
 
 type QRType = "link" | "vcard";
 type DesignTab = "frame" | "shape" | "color";
 type FrameId = "none" | "rounded" | "scan-bottom" | "scan-top" | "brackets";
+type DownloadFormat = "png" | "svg" | "pdf";
 
 const QR_INK = "#1f2a44";
+
+const STORAGE_KEY = "qricard:builder:v1";
+
+/* ----------------------------- Validation ----------------------------- */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const URL_RE = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/\S*)?$/i;
+const TEL_RE = /^[+]?[\d\s().-]{6,}$/;
+
+type FieldLike = { type: string; required?: boolean };
+
+// Returns an error message for a single field value, or "" when it's valid.
+function validateField(field: FieldLike, value: string | undefined): string {
+  const v = (value ?? "").trim();
+  if (!v) return field.required ? "This field is required" : "";
+
+  switch (field.type) {
+    case "email":
+      return EMAIL_RE.test(v) ? "" : "Enter a valid email address";
+    case "url":
+      return URL_RE.test(v) ? "" : "Enter a valid URL";
+    case "tel":
+      return TEL_RE.test(v) ? "" : "Enter a valid phone number";
+    case "number":
+      return /^\d+$/.test(v) ? "" : "Enter numbers only";
+    default:
+      return "";
+  }
+}
+
+type PersistedState = {
+  type: QRType;
+  url: string;
+  vCard: VCardProps;
+  frame: FrameId;
+  dotStyle: DotType;
+  cornerStyle: CornerSquareType;
+  qrColor: string;
+  template: string;
+};
+
+function loadPersisted(): Partial<PersistedState> | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as Partial<PersistedState>) : null;
+  } catch {
+    return null;
+  }
+}
 
 const QR_COLORS: string[] = [
   "#1f2a44",
@@ -158,19 +213,43 @@ function CustomSelect({
 
 /* ------------------------------- Generator ------------------------------- */
 export default function QRGenerator() {
-  const [type, setType] = useState<QRType>("link");
-  const [url, setUrl] = useState<string>("");
-  const [vCard, setVCard] = useState<VCardProps>({});
+  // Restore any previously entered data from localStorage (once).
+  const [persisted] = useState<Partial<PersistedState> | null>(loadPersisted);
+
+  const [type, setType] = useState<QRType>(persisted?.type ?? "link");
+  const [url, setUrl] = useState<string>(persisted?.url ?? "");
+  const [vCard, setVCard] = useState<VCardProps>(persisted?.vCard ?? {});
 
   // design state
   const [designTab, setDesignTab] = useState<DesignTab>("frame");
-  const [frame, setFrame] = useState<FrameId>("none");
-  const [dotStyle, setDotStyle] = useState<DotType>("square");
-  const [cornerStyle, setCornerStyle] = useState<CornerSquareType>("square");
-  const [qrColor, setQrColor] = useState<string>(QR_INK);
+  const [frame, setFrame] = useState<FrameId>(persisted?.frame ?? "none");
+  const [dotStyle, setDotStyle] = useState<DotType>(
+    persisted?.dotStyle ?? "square",
+  );
+  const [cornerStyle, setCornerStyle] = useState<CornerSquareType>(
+    persisted?.cornerStyle ?? "square",
+  );
+  const [qrColor, setQrColor] = useState<string>(persisted?.qrColor ?? QR_INK);
+  // Which standard template the shared v-card page renders in.
+  const [template, setTemplate] = useState<string>(
+    persisted?.template ?? DEFAULT_TEMPLATE_ID,
+  );
   const [copied, setCopied] = useState<boolean>(false);
+  // On mobile the preview stays hidden until the user taps "Generate".
+  const [generated, setGenerated] = useState<boolean>(false);
+
+  // Which fields the user has interacted with — errors only show after blur.
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  // Whether saved data exists (controls the "Clear all" button).
+  const [hasStored, setHasStored] = useState<boolean>(persisted !== null);
+  // Download format menu open/closed.
+  const [dlOpen, setDlOpen] = useState<boolean>(false);
+  // Collapsible Help section (collapsed by default).
+  const [helpOpen, setHelpOpen] = useState<boolean>(false);
 
   const captureRef = useRef<HTMLDivElement>(null);
+  const previewRef = useRef<HTMLElement>(null);
+  const dlRef = useRef<HTMLDivElement>(null);
   const qrNodeRef = useRef<HTMLDivElement>(null);
   const qrStyling = useRef<QRCodeStyling | null>(null);
 
@@ -212,25 +291,17 @@ export default function QRGenerator() {
 
   // The Copy-link button copies a shareable page URL instead of the raw payload:
   //  - v-card -> /vcard-view?data=... (renders the contact + Add to Contacts)
-  const vCardShareUrl = useMemo(() => {
-    const filtered = Object.fromEntries(
-      Object.entries(vCard).filter(([, v]) => v && v.trim() !== ""),
-    );
-    if (Object.keys(filtered).length === 0) return "";
+  //  - link   -> /link?url=...       (redirects the visitor to the target)
+  // Both formats are the printed-card contract — see utils/vcard.ts.
+  const vCardShareUrl = useMemo(
+    () => buildVCardShareUrl(window.location.origin, vCard, template),
+    [vCard, template],
+  );
 
-    const compressed = LZString.compressToEncodedURIComponent(
-      JSON.stringify(filtered),
-    );
-    return `${window.location.origin}/vcard-view?data=${compressed}`;
-  }, [vCard]);
-
-  //  - link -> /link?url=... (redirects the visitor to the target)
-  const linkRedirectUrl = useMemo(() => {
-    const target = url.trim();
-    if (!target) return "";
-    const normalized = /^https?:\/\//i.test(target) ? target : `https://${target}`;
-    return `${window.location.origin}/link?url=${encodeURIComponent(normalized)}`;
-  }, [url]);
+  const linkRedirectUrl = useMemo(
+    () => buildLinkRedirectUrl(window.location.origin, url),
+    [url],
+  );
 
   const qrValue = type === "link" ? url.trim() : vCardText;
   const copyValue = type === "link" ? linkRedirectUrl : vCardShareUrl;
@@ -272,23 +343,128 @@ export default function QRGenerator() {
     }
   }, [hasValue, qrValue, dotStyle, cornerStyle, qrColor, frame]);
 
-  const handleDownload = () => {
-    if (captureRef.current === null || !hasValue) return;
+  /* persist the builder state to localStorage */
+  useEffect(() => {
+    const hasAnyData =
+      hasValue ||
+      frame !== "none" ||
+      dotStyle !== "square" ||
+      cornerStyle !== "square" ||
+      qrColor !== QR_INK ||
+      template !== DEFAULT_TEMPLATE_ID;
 
+    try {
+      if (hasAnyData) {
+        const snapshot: PersistedState = {
+          type,
+          url,
+          vCard,
+          frame,
+          dotStyle,
+          cornerStyle,
+          qrColor,
+          template,
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+        setHasStored(true);
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+        setHasStored(false);
+      }
+    } catch {
+      /* storage may be unavailable (private mode) — ignore */
+    }
+  }, [
+    type,
+    url,
+    vCard,
+    frame,
+    dotStyle,
+    cornerStyle,
+    qrColor,
+    template,
+    hasValue,
+  ]);
+
+  /* close the download-format menu when clicking outside it */
+  useEffect(() => {
+    const onDoc = (e: MouseEvent) => {
+      if (dlRef.current && !dlRef.current.contains(e.target as Node)) {
+        setDlOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  /* open + scroll to Help, from the header button or a #help deep link */
+  useEffect(() => {
+    const openHelp = () => {
+      setHelpOpen(true);
+      // Wait for the steps to expand before scrolling so we land on the
+      // fully-rendered section.
+      window.setTimeout(() => {
+        document
+          .getElementById("help")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    };
+    const openFromHash = () => {
+      if (window.location.hash === "#help") openHelp();
+    };
+
+    openFromHash();
+    window.addEventListener("qricard:open-help", openHelp);
+    window.addEventListener("hashchange", openFromHash);
+    return () => {
+      window.removeEventListener("qricard:open-help", openHelp);
+      window.removeEventListener("hashchange", openFromHash);
+    };
+  }, []);
+
+  const triggerDownload = (dataUrl: string, ext: string) => {
+    const link = document.createElement("a");
+    link.download = `qri-card-export.${ext}`;
+    link.href = dataUrl;
+    link.click();
+  };
+
+  const handleDownload = (format: DownloadFormat) => {
+    if (captureRef.current === null || !hasValue) return;
+    setDlOpen(false);
+
+    if (format === "svg") {
+      toSvg(captureRef.current, { cacheBust: true })
+        .then((dataUrl) => triggerDownload(dataUrl, "svg"))
+        .catch((err) => console.error("Error generating QR code SVG:", err));
+      return;
+    }
+
+    // PNG and PDF both start from a high-resolution PNG raster.
     toPng(captureRef.current, {
       pixelRatio: 4,
       backgroundColor: "#ffffff",
       cacheBust: true,
     })
       .then((dataUrl) => {
-        const link = document.createElement("a");
-        link.download = "qri-card-export.png";
-        link.href = dataUrl;
-        link.click();
+        if (format === "png") {
+          triggerDownload(dataUrl, "png");
+          return;
+        }
+        // PDF: drop the PNG onto a page sized to the image.
+        const img = new Image();
+        img.onload = () => {
+          const pdf = new jsPDF({
+            orientation: img.width >= img.height ? "landscape" : "portrait",
+            unit: "px",
+            format: [img.width, img.height],
+          });
+          pdf.addImage(dataUrl, "PNG", 0, 0, img.width, img.height);
+          pdf.save("qri-card-export.pdf");
+        };
+        img.src = dataUrl;
       })
-      .catch((err) => {
-        console.error("Error generating QR code PNG:", err);
-      });
+      .catch((err) => console.error("Error generating QR code:", err));
   };
 
   const handleCopy = () => {
@@ -302,6 +478,27 @@ export default function QRGenerator() {
   const handleReset = () => {
     setUrl("");
     setVCard({});
+    setTouched({});
+    setGenerated(false);
+  };
+
+  // Wipe everything, including saved design + localStorage.
+  const handleClearAll = () => {
+    setUrl("");
+    setVCard({});
+    setTouched({});
+    setFrame("none");
+    setDotStyle("square");
+    setCornerStyle("square");
+    setQrColor(QR_INK);
+    setTemplate(DEFAULT_TEMPLATE_ID);
+    setGenerated(false);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    setHasStored(false);
   };
 
   const handleTypeChange = (next: QRType) => {
@@ -309,10 +506,28 @@ export default function QRGenerator() {
     setType(next);
     setUrl("");
     setVCard({});
+    setGenerated(false);
+  };
+
+  // Reveal the preview and scroll it into view (mobile "Generate" flow).
+  const handleGenerate = () => {
+    if (!hasValue) return;
+    setGenerated(true);
+    requestAnimationFrame(() => {
+      previewRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
   };
 
   const contentTitle =
     type === "link" ? "Enter your Website" : "Enter your contact details";
+
+  const linkError =
+    touched.url && url.trim() && !URL_RE.test(url.trim())
+      ? "Enter a valid URL"
+      : "";
 
   /* preview with frame */
   const qrInner = (
@@ -405,15 +620,24 @@ export default function QRGenerator() {
             {type === "link" && <p className="field-label">{contentTitle}</p>}
 
             {type === "link" ? (
-              <input
-                type="url"
-                inputMode="url"
-                className="qr-input"
-                placeholder="https://"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                aria-label="Website URL"
-              />
+              <>
+                <input
+                  type="url"
+                  inputMode="url"
+                  className={`qr-input ${linkError ? "is-invalid" : ""}`}
+                  placeholder="https://"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  onBlur={() => setTouched((t) => ({ ...t, url: true }))}
+                  aria-label="Website URL"
+                  aria-invalid={!!linkError}
+                />
+                {linkError && (
+                  <span className="field-error" role="alert">
+                    {linkError}
+                  </span>
+                )}
+              </>
             ) : (
               <div className="vcard-groups">
                 {VCARD_GROUPS.map((group) => (
@@ -423,6 +647,12 @@ export default function QRGenerator() {
                       {group.ids.map((id) => {
                         const field = vCardFields.find((f) => f.id === id);
                         if (!field) return null;
+
+                        const error = touched[field.id]
+                          ? validateField(field, vCard[field.id])
+                          : "";
+                        const markTouched = () =>
+                          setTouched((t) => ({ ...t, [field.id]: true }));
 
                         return (
                           <div
@@ -444,14 +674,15 @@ export default function QRGenerator() {
                                 value={vCard[field.id] ?? ""}
                                 placeholder={`Select ${field.label}`}
                                 options={field.options}
-                                onChange={(v) =>
-                                  setVCard({ ...vCard, [field.id]: v })
-                                }
+                                onChange={(v) => {
+                                  setVCard({ ...vCard, [field.id]: v });
+                                  markTouched();
+                                }}
                               />
                             ) : field.type === "textarea" ? (
                               <textarea
                                 id={`vcard-${field.id}`}
-                                className="qr-input"
+                                className={`qr-input ${error ? "is-invalid" : ""}`}
                                 rows={3}
                                 value={vCard[field.id] ?? ""}
                                 onChange={(e) =>
@@ -460,12 +691,14 @@ export default function QRGenerator() {
                                     [field.id]: e.target.value,
                                   })
                                 }
+                                onBlur={markTouched}
+                                aria-invalid={!!error}
                               />
                             ) : (
                               <input
                                 id={`vcard-${field.id}`}
                                 type={field.type}
-                                className="qr-input"
+                                className={`qr-input ${error ? "is-invalid" : ""}`}
                                 value={vCard[field.id] ?? ""}
                                 onChange={(e) =>
                                   setVCard({
@@ -473,7 +706,15 @@ export default function QRGenerator() {
                                     [field.id]: e.target.value,
                                   })
                                 }
+                                onBlur={markTouched}
+                                aria-invalid={!!error}
                               />
+                            )}
+
+                            {error && (
+                              <span className="field-error" role="alert">
+                                {error}
+                              </span>
                             )}
                           </div>
                         );
@@ -484,16 +725,66 @@ export default function QRGenerator() {
               </div>
             )}
 
-            <button
-              type="button"
-              className="ghost-btn"
-              onClick={handleReset}
-              disabled={!hasValue}
-            >
-              <ArrowCounterclockwise size={16} aria-hidden />
-              Reset
-            </button>
+            <div className="step-actions">
+              <button
+                type="button"
+                className="ghost-btn"
+                onClick={handleReset}
+                disabled={!hasValue}
+              >
+                <ArrowCounterclockwise size={16} aria-hidden />
+                Reset
+              </button>
+
+              {hasStored && (
+                <button
+                  type="button"
+                  className="ghost-btn ghost-btn--danger"
+                  onClick={handleClearAll}
+                  title="Clear all entered data and saved design"
+                >
+                  <Trash size={16} aria-hidden />
+                  Clear all
+                </button>
+              )}
+            </div>
           </div>
+
+          {/* --------------------- V-card template --------------------- */}
+          {type === "vcard" && (
+            <div className="design-section template-section">
+              <h2 className="design-title">Choose a card template</h2>
+              <p className="sub-label">
+                Anyone who scans your QR code sees the card in this style.
+              </p>
+              <div
+                className="template-row"
+                role="radiogroup"
+                aria-label="V-card template"
+              >
+                {VCARD_TEMPLATES.map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={template === tpl.id}
+                    className={`template-card ${
+                      template === tpl.id ? "is-active" : ""
+                    }`}
+                    onClick={() => setTemplate(tpl.id)}
+                    title={tpl.description}
+                  >
+                    <span className={`template-swatch tpl-${tpl.id}`}>
+                      <span className="template-swatch-avatar" />
+                      <span className="template-swatch-line" />
+                      <span className="template-swatch-line short" />
+                    </span>
+                    <span className="template-name">{tpl.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* --------------------- Design your QR Code --------------------- */}
           <div className="design-section">
@@ -619,11 +910,25 @@ export default function QRGenerator() {
                 </div>
               </div>
             )}
+
+            {/* Mobile-only: reveal the preview below on demand */}
+            <button
+              type="button"
+              className="primary-btn generate-btn"
+              onClick={handleGenerate}
+              disabled={!hasValue}
+            >
+              <QrCode size={18} aria-hidden />
+              Generate
+            </button>
           </div>
         </section>
 
         {/* ------------------- Right: live preview + download ------------------- */}
-        <aside className="panel qr-preview">
+        <aside
+          ref={previewRef}
+          className={`panel qr-preview ${generated ? "is-generated" : ""}`}
+        >
           <div className="step-head">
             <h2>Your QR Code</h2>
           </div>
@@ -638,15 +943,40 @@ export default function QRGenerator() {
             </div>
           </div>
 
-          <button
-            type="button"
-            className="primary-btn"
-            onClick={handleDownload}
-            disabled={!hasValue}
+          <div
+            className={`download-menu ${dlOpen ? "is-open" : ""}`}
+            ref={dlRef}
           >
-            <Download size={18} aria-hidden />
-            Download QR Code
-          </button>
+            <button
+              type="button"
+              className="primary-btn"
+              onClick={() => setDlOpen((o) => !o)}
+              disabled={!hasValue}
+              aria-haspopup="menu"
+              aria-expanded={dlOpen}
+            >
+              <Download size={18} aria-hidden />
+              Download QR Code
+              <ChevronDown size={16} aria-hidden />
+            </button>
+
+            {dlOpen && (
+              <ul className="download-options" role="menu">
+                {(["png", "svg", "pdf"] as DownloadFormat[]).map((fmt) => (
+                  <li key={fmt} role="none">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="download-option"
+                      onClick={() => handleDownload(fmt)}
+                    >
+                      Download as {fmt.toUpperCase()}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
           <button
             type="button"
@@ -670,55 +1000,69 @@ export default function QRGenerator() {
       </div>
 
       {/* ------------------------------- Help ------------------------------- */}
-      <section className="panel help-card">
-        <div className="section-head">
+      <section className="panel help-card" id="help">
+        <button
+          type="button"
+          className="section-head help-toggle"
+          aria-expanded={helpOpen}
+          aria-controls="help-steps"
+          onClick={() => setHelpOpen((o) => !o)}
+        >
           <span className="section-icon">
             <QuestionCircle size={20} aria-hidden />
           </span>
           <h2>Help &amp; How it works</h2>
-        </div>
-        <div className="help-steps">
-          <div className="help-step">
-            <span className="help-step-icon">
-              <CursorFill size={18} aria-hidden />
-            </span>
-            <h3>1. Pick a type</h3>
-            <p>
-              Choose <strong>Link</strong> for a website, or{" "}
-              <strong>V-card</strong> to share your contact details.
-            </p>
+          <ChevronDown
+            className={`help-caret ${helpOpen ? "is-open" : ""}`}
+            size={20}
+            aria-hidden
+          />
+        </button>
+
+        {helpOpen && (
+          <div className="help-steps" id="help-steps">
+            <div className="help-step">
+              <span className="help-step-icon">
+                <CursorFill size={18} aria-hidden />
+              </span>
+              <h3>1. Pick a type</h3>
+              <p>
+                Choose <strong>Link</strong> for a website, or{" "}
+                <strong>V-card</strong> to share your contact details.
+              </p>
+            </div>
+            <div className="help-step">
+              <span className="help-step-icon">
+                <PencilSquare size={18} aria-hidden />
+              </span>
+              <h3>2. Add the content</h3>
+              <p>
+                Fill in the fields — the QR code updates live in the preview on
+                the right as you type.
+              </p>
+            </div>
+            <div className="help-step">
+              <span className="help-step-icon">
+                <Palette size={18} aria-hidden />
+              </span>
+              <h3>3. Design it</h3>
+              <p>
+                Pick a frame, change the module &amp; corner shape, and choose
+                any color you like.
+              </p>
+            </div>
+            <div className="help-step">
+              <span className="help-step-icon">
+                <DownloadIcon size={18} aria-hidden />
+              </span>
+              <h3>4. Download</h3>
+              <p>
+                Save a high-resolution PNG, SVG, or PDF — exactly what you see in
+                the preview — ready to share or print.
+              </p>
+            </div>
           </div>
-          <div className="help-step">
-            <span className="help-step-icon">
-              <PencilSquare size={18} aria-hidden />
-            </span>
-            <h3>2. Add the content</h3>
-            <p>
-              Fill in the fields — the QR code updates live in the preview on the
-              right as you type.
-            </p>
-          </div>
-          <div className="help-step">
-            <span className="help-step-icon">
-              <Palette size={18} aria-hidden />
-            </span>
-            <h3>3. Design it</h3>
-            <p>
-              Pick a frame, change the module &amp; corner shape, and choose any
-              color you like.
-            </p>
-          </div>
-          <div className="help-step">
-            <span className="help-step-icon">
-              <DownloadIcon size={18} aria-hidden />
-            </span>
-            <h3>4. Download</h3>
-            <p>
-              Save a high-resolution PNG — exactly what you see in the preview —
-              ready to share or print.
-            </p>
-          </div>
-        </div>
+        )}
       </section>
 
       {/* ------------------------------- About ------------------------------ */}
@@ -733,18 +1077,7 @@ export default function QRGenerator() {
           QriCard is a free, no-sign-up tool to generate QR codes for links and
           shareable digital business cards. Everything runs right in your browser
           — your data never leaves your device. Customize the frame, shape, and
-          color, then download a crisp PNG in a single click.
-        </p>
-        <p className="about-credit">
-          Created by{" "}
-          <a
-            href="https://synivo.tech/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Synivo
-          </a>
-          .
+          color, then download a crisp PNG, SVG, or PDF in a single click.
         </p>
       </section>
     </div>

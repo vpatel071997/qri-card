@@ -1,3 +1,9 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# The /vcard-view and /link pages are per-visitor payloads, not content pages.
+Disallow: /vcard-view
+Disallow: /link
+
+Sitemap: https://qr.synivo.com.au/sitemap.xml
