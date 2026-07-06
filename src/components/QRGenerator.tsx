@@ -3,8 +3,7 @@ import QRCodeStyling, {
   DotType,
   CornerSquareType,
 } from "qr-code-styling";
-import { toPng, toSvg } from "html-to-image";
-import { jsPDF } from "jspdf";
+import { toPng, toSvg, toJpeg } from "html-to-image";
 import {
   Link45deg,
   PersonVcard,
@@ -27,6 +26,7 @@ import {
 import { VCardProps } from "../utils/props";
 import { vCardFields } from "../utils/vCardFields";
 import { buildVCardShareUrl, buildLinkRedirectUrl } from "../utils/vcard";
+import { jpegDataUrlToPdfBlob } from "../utils/pdf";
 import {
   VCARD_TEMPLATES,
   DEFAULT_TEMPLATE_ID,
@@ -440,31 +440,42 @@ export default function QRGenerator() {
       return;
     }
 
-    // PNG and PDF both start from a high-resolution PNG raster.
-    toPng(captureRef.current, {
+    if (format === "png") {
+      toPng(captureRef.current, {
+        pixelRatio: 4,
+        backgroundColor: "#ffffff",
+        cacheBust: true,
+      })
+        .then((dataUrl) => triggerDownload(dataUrl, "png"))
+        .catch((err) => console.error("Error generating QR code PNG:", err));
+      return;
+    }
+
+    // PDF: embed a high-res JPEG raster onto a page sized to the image.
+    toJpeg(captureRef.current, {
       pixelRatio: 4,
       backgroundColor: "#ffffff",
+      quality: 0.95,
       cacheBust: true,
     })
       .then((dataUrl) => {
-        if (format === "png") {
-          triggerDownload(dataUrl, "png");
-          return;
-        }
-        // PDF: drop the PNG onto a page sized to the image.
         const img = new Image();
         img.onload = () => {
-          const pdf = new jsPDF({
-            orientation: img.width >= img.height ? "landscape" : "portrait",
-            unit: "px",
-            format: [img.width, img.height],
-          });
-          pdf.addImage(dataUrl, "PNG", 0, 0, img.width, img.height);
-          pdf.save("qri-card-export.pdf");
+          const blob = jpegDataUrlToPdfBlob(
+            dataUrl,
+            img.naturalWidth,
+            img.naturalHeight,
+          );
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.download = "qri-card-export.pdf";
+          a.href = url;
+          a.click();
+          URL.revokeObjectURL(url);
         };
         img.src = dataUrl;
       })
-      .catch((err) => console.error("Error generating QR code:", err));
+      .catch((err) => console.error("Error generating QR code PDF:", err));
   };
 
   const handleCopy = () => {
