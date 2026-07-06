@@ -9,7 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
-        run: npm ci --omit=optional || npm install
+        # Web/Pages build doesn't need the Electron toolchain (devDependencies),
+        # which pulls an SSH git dep (@electron/node-gyp) that stalls CI.
+        run: npm ci --omit=optional --omit=dev || npm install --omit=dev
       - name: Build (CRA)
         env:
           CI: "false" # CRA treats warnings as errors under CI=true; don't fail the build on lint warnings
