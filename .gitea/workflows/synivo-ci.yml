@@ -1,0 +1,31 @@
+name: synivo-ci
+on:
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  enforce-source:
+    if: github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: PRs to main must come from staging
+        run: |
+          if [ "${{ github.head_ref }}" != "staging" ]; then
+            echo "::error::PR to main must come from the staging branch (got: ${{ github.head_ref }}). Open a PR from your feature branch into staging first."
+            exit 1
+          fi
+          echo "Source branch OK"
+
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint / test placeholder
+        run: |
+          echo "Running CI for $GITHUB_HEAD_REF -> $GITHUB_BASE_REF"
+          if [ -f package.json ]; then
+            npm ci --omit=optional || npm install
+            npm test --if-present
+          else
+            echo "No package.json — passing through (customize this workflow per-repo for real checks)"
+          fi

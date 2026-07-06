@@ -1,0 +1,21 @@
+name: Deploy to Cloudflare Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: npm ci --omit=optional || npm install
+      - name: Build (CRA)
+        env:
+          CI: "false" # CRA treats warnings as errors under CI=true; don't fail the build on lint warnings
+        run: npm run build
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@3 pages deploy build --project-name=qri-card --branch=main --commit-dirty=true
