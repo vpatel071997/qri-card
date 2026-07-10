@@ -1,14 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import BatchGenerator from "./BatchGenerator";
 
-// BatchGenerator uses <Link>, so it must render inside a Router.
-const render_ = () =>
-  render(
-    <MemoryRouter>
-      <BatchGenerator />
-    </MemoryRouter>,
-  );
+const render_ = () => render(<BatchGenerator />);
 
 describe("BatchGenerator", () => {
   it("renders the bulk heading and an empty state", () => {

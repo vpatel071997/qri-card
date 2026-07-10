@@ -1,15 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent, within, act } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import QRGenerator from "./QRGenerator";
 
-// QRGenerator uses <Link>, so it must render inside a Router.
-const renderGen = () =>
-  render(
-    <MemoryRouter>
-      <QRGenerator />
-    </MemoryRouter>,
-  );
+const renderGen = () => render(<QRGenerator />);
 
 // The builder persists to localStorage and can hydrate from the URL; isolate
 // every test from the last one.

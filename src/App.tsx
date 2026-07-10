@@ -6,6 +6,7 @@ import QRGenerator from "./components/QRGenerator";
 import VCardView from "./components/VCardView";
 import LinkRedirect from "./components/LinkRedirect";
 import BatchGenerator from "./components/BatchGenerator";
+import { SPA_NAVIGATE_EVENT } from "./utils/spaNav";
 
 const CHROMELESS_PATHS = ["/vcard-view", "/link"];
 
@@ -17,6 +18,17 @@ function App() {
   useEffect(() => {
     setShowChrome(!CHROMELESS_PATHS.includes(location.pathname));
   }, [location.pathname]);
+
+  // Components navigate by dispatching this event (they can't import
+  // react-router — its v7 exports don't resolve under the CRA Jest resolver).
+  useEffect(() => {
+    const onNav = (e: Event) => {
+      const path = (e as CustomEvent<string>).detail;
+      if (path) navigate(path);
+    };
+    window.addEventListener(SPA_NAVIGATE_EVENT, onNav);
+    return () => window.removeEventListener(SPA_NAVIGATE_EVENT, onNav);
+  }, [navigate]);
 
   return (
     <div className="app-shell">

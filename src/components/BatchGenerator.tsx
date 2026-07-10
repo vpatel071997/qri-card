@@ -1,5 +1,4 @@
 import { useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import QRCodeStyling from "qr-code-styling";
 import QRCode from "react-qr-code";
 import { DotType } from "qr-code-styling";
@@ -19,6 +18,7 @@ import { buildQrOptions } from "../utils/qrOptions";
 import { createZipBlob } from "../utils/zip";
 import { labelSheetPdfBlob, LabelImage } from "../utils/pdf";
 import PageInfoSections, { HelpStep } from "./PageInfoSections";
+import { spaLinkProps } from "../utils/spaNav";
 
 const QR_INK = "#1f2a44";
 const PREVIEW_LIMIT = 24;
@@ -208,10 +208,10 @@ export default function BatchGenerator() {
 
   return (
     <div className="qr-app batch-app">
-      <Link className="batch-back" to="/">
+      <a className="batch-back" {...spaLinkProps("/")}>
         <ArrowLeft size={16} aria-hidden />
         Back to single QR
-      </Link>
+      </a>
 
       <header className="hero">
         <h1 className="hero-title">
