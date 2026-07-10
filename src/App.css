@@ -2144,3 +2144,25 @@ a.vcard-row-value {
     display: block;
   }
 }
+
+/* ---------------------- Page transition (SPA route switch) --------------------- */
+/* Each page mounts its own .qr-app, so this plays on every Single <-> Bulk switch
+   (client-side, no full reload). */
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.qr-app {
+  animation: pageIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .qr-app {
+    animation: none;
+  }
+}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import QRCodeStyling, { DotType, CornerSquareType } from "qr-code-styling";
 import { toPng, toSvg, toJpeg } from "html-to-image";
 import {
@@ -879,14 +880,14 @@ export default function QRGenerator() {
           instantly, free, and with no sign-up.
         </p>
 
-        <a className="batch-cta" href="/batch">
+        <Link className="batch-cta" to="/batch">
           <Grid3x3Gap size={18} aria-hidden />
           <span>
             Need lots at once? <strong>Bulk generate from CSV</strong> —
             download a ZIP or printable label sheet
           </span>
           <ArrowRight size={16} aria-hidden />
-        </a>
+        </Link>
       </header>
 
       <div className="qr-grid">

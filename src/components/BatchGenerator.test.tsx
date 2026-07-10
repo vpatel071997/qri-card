@@ -1,9 +1,18 @@
 import { render, screen, fireEvent } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import BatchGenerator from "./BatchGenerator";
+
+// BatchGenerator uses <Link>, so it must render inside a Router.
+const render_ = () =>
+  render(
+    <MemoryRouter>
+      <BatchGenerator />
+    </MemoryRouter>,
+  );
 
 describe("BatchGenerator", () => {
   it("renders the bulk heading and an empty state", () => {
-    render(<BatchGenerator />);
+    render_();
     expect(
       screen.getByRole("heading", { name: /in Bulk/i }),
     ).toBeInTheDocument();
@@ -14,7 +23,7 @@ describe("BatchGenerator", () => {
   });
 
   it("shows an error when downloading with no list", () => {
-    render(<BatchGenerator />);
+    render_();
     const zip = screen.getByRole("button", { name: /Download ZIP/i });
     // Enabled even with no rows — the requirement is surfaced on click.
     expect(zip).not.toBeDisabled();
@@ -25,7 +34,7 @@ describe("BatchGenerator", () => {
   });
 
   it("prompts for the terms before generating once a list exists", () => {
-    render(<BatchGenerator />);
+    render_();
     fireEvent.change(screen.getByLabelText(/Batch list/i), {
       target: { value: "Google,https://google.com" },
     });
@@ -40,7 +49,7 @@ describe("BatchGenerator", () => {
   });
 
   it("parses pasted CSV into a live preview and a count", () => {
-    render(<BatchGenerator />);
+    render_();
     fireEvent.change(screen.getByLabelText(/Batch list/i), {
       target: {
         value: "Google,https://google.com\nOpenAI,https://openai.com",
@@ -55,7 +64,7 @@ describe("BatchGenerator", () => {
   });
 
   it("enables the export buttons once rows exist", () => {
-    render(<BatchGenerator />);
+    render_();
     fireEvent.change(screen.getByLabelText(/Batch list/i), {
       target: { value: "https://a.test\nhttps://b.test" },
     });
@@ -68,7 +77,7 @@ describe("BatchGenerator", () => {
   });
 
   it("fills the textarea from the sample button", () => {
-    render(<BatchGenerator />);
+    render_();
     fireEvent.click(screen.getByRole("button", { name: /Use sample/i }));
     const ta = screen.getByLabelText(/Batch list/i) as HTMLTextAreaElement;
     expect(ta.value).toContain("Google");
@@ -76,7 +85,7 @@ describe("BatchGenerator", () => {
   });
 
   it("caps the preview but still counts every row for download", () => {
-    render(<BatchGenerator />);
+    render_();
     const many = Array.from(
       { length: 30 },
       (_, i) => `Item${i},https://x${i}.test`,
@@ -89,7 +98,7 @@ describe("BatchGenerator", () => {
   });
 
   it("clears the list", () => {
-    render(<BatchGenerator />);
+    render_();
     const ta = screen.getByLabelText(/Batch list/i);
     fireEvent.change(ta, { target: { value: "A,https://a.test" } });
     fireEvent.click(screen.getByRole("button", { name: /^Clear$/i }));

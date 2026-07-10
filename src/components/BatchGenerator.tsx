@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import QRCodeStyling from "qr-code-styling";
 import QRCode from "react-qr-code";
 import { DotType } from "qr-code-styling";
@@ -207,10 +208,10 @@ export default function BatchGenerator() {
 
   return (
     <div className="qr-app batch-app">
-      <a className="batch-back" href="/">
+      <Link className="batch-back" to="/">
         <ArrowLeft size={16} aria-hidden />
         Back to single QR
-      </a>
+      </Link>
 
       <header className="hero">
         <h1 className="hero-title">

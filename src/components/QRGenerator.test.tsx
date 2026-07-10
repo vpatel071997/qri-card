@@ -1,6 +1,15 @@
 import React from "react";
 import { render, screen, fireEvent, within, act } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import QRGenerator from "./QRGenerator";
+
+// QRGenerator uses <Link>, so it must render inside a Router.
+const renderGen = () =>
+  render(
+    <MemoryRouter>
+      <QRGenerator />
+    </MemoryRouter>,
+  );
 
 // The builder persists to localStorage and can hydrate from the URL; isolate
 // every test from the last one.
@@ -11,7 +20,7 @@ beforeEach(() => {
 
 describe("QRGenerator component", () => {
   it("renders the Link tab active with a website input", () => {
-    render(<QRGenerator />);
+    renderGen();
     expect(screen.getByText("Enter your Website")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("https://")).toBeInTheDocument();
     expect(
@@ -20,7 +29,7 @@ describe("QRGenerator component", () => {
   });
 
   it("renders a live QR code once a URL is entered", () => {
-    render(<QRGenerator />);
+    renderGen();
     fireEvent.change(screen.getByPlaceholderText("https://"), {
       target: { value: "https://example.com" },
     });
@@ -28,7 +37,7 @@ describe("QRGenerator component", () => {
   });
 
   it("keeps download disabled with no content, but enabled (terms-gated on click) with content", () => {
-    render(<QRGenerator />);
+    renderGen();
     const download = screen.getByRole("button", { name: /Download QR Code/i });
     expect(download).toBeDisabled();
 
@@ -52,7 +61,7 @@ describe("QRGenerator component", () => {
   });
 
   it("prompts for the terms when Copy link is clicked before accepting", () => {
-    render(<QRGenerator />);
+    renderGen();
     fireEvent.change(screen.getByPlaceholderText("https://"), {
       target: { value: "https://example.com" },
     });
@@ -73,7 +82,7 @@ describe("QRGenerator component", () => {
   });
 
   it("renders the Disclaimer & Privacy section with terms and privacy", () => {
-    render(<QRGenerator />);
+    renderGen();
     expect(
       screen.getByRole("heading", { name: /Disclaimer & Privacy/i }),
     ).toBeInTheDocument();
@@ -86,7 +95,7 @@ describe("QRGenerator component", () => {
   });
 
   it("opens a format menu offering PNG, SVG and PDF", () => {
-    render(<QRGenerator />);
+    renderGen();
     fireEvent.change(screen.getByPlaceholderText("https://"), {
       target: { value: "https://example.com" },
     });
@@ -111,14 +120,14 @@ describe("QRGenerator component", () => {
   });
 
   it("switches to the V-card tab and shows contact fields", () => {
-    render(<QRGenerator />);
+    renderGen();
     fireEvent.click(screen.getByRole("tab", { name: /V-card/i }));
     expect(screen.getByLabelText(/First Name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Last Name/i)).toBeInTheDocument();
   });
 
   it("generates a QR code from V-card details", () => {
-    render(<QRGenerator />);
+    renderGen();
     fireEvent.click(screen.getByRole("tab", { name: /V-card/i }));
     fireEvent.change(screen.getByLabelText(/First Name/i), {
       target: { value: "John" },
@@ -127,7 +136,7 @@ describe("QRGenerator component", () => {
   });
 
   it("shows a required-field error only after the field is touched", () => {
-    render(<QRGenerator />);
+    renderGen();
     fireEvent.click(screen.getByRole("tab", { name: /V-card/i }));
     const firstName = screen.getByLabelText(/First Name/i);
 
@@ -137,7 +146,7 @@ describe("QRGenerator component", () => {
   });
 
   it("validates email format", () => {
-    render(<QRGenerator />);
+    renderGen();
     fireEvent.click(screen.getByRole("tab", { name: /V-card/i }));
     const email = screen.getByLabelText(/Email/i);
     fireEvent.change(email, { target: { value: "not-an-email" } });
@@ -148,20 +157,20 @@ describe("QRGenerator component", () => {
   });
 
   it("restores previously entered data on reload", () => {
-    const { unmount } = render(<QRGenerator />);
+    const { unmount } = renderGen();
     fireEvent.change(screen.getByPlaceholderText("https://"), {
       target: { value: "https://persisted.example" },
     });
     unmount();
 
-    render(<QRGenerator />);
+    renderGen();
     expect(screen.getByPlaceholderText("https://")).toHaveValue(
       "https://persisted.example",
     );
   });
 
   it("clears all data and saved state with Clear all", () => {
-    render(<QRGenerator />);
+    renderGen();
     fireEvent.change(screen.getByPlaceholderText("https://"), {
       target: { value: "https://example.com" },
     });
@@ -172,7 +181,7 @@ describe("QRGenerator component", () => {
   });
 
   it("shows the template picker only for V-cards and lets you pick one", () => {
-    render(<QRGenerator />);
+    renderGen();
     // Not shown for links.
     expect(screen.queryByText(/Choose a card template/i)).toBeNull();
 
@@ -189,7 +198,7 @@ describe("QRGenerator component", () => {
   });
 
   it("reveals the Help steps only after clicking the toggle", () => {
-    render(<QRGenerator />);
+    renderGen();
     const toggle = screen.getByRole("button", {
       name: /Help & How it works/i,
     });
@@ -202,7 +211,7 @@ describe("QRGenerator component", () => {
   });
 
   it("opens Help when the header dispatches the open-help event", () => {
-    render(<QRGenerator />);
+    renderGen();
     expect(screen.queryByText(/1\. Pick a type/i)).toBeNull();
 
     // The header's Help button dispatches this to reveal + scroll to Help.
@@ -215,7 +224,7 @@ describe("QRGenerator component", () => {
   /* ------------------- Advanced design controls ------------------- */
 
   it("offers a Logo design tab with an upload prompt", () => {
-    render(<QRGenerator />);
+    renderGen();
     fireEvent.click(screen.getByRole("tab", { name: /^Logo$/i }));
     expect(screen.getByText(/Upload a logo/i)).toBeInTheDocument();
     expect(
@@ -224,7 +233,7 @@ describe("QRGenerator component", () => {
   });
 
   it("reveals gradient direction controls when Gradient fill is toggled", () => {
-    render(<QRGenerator />);
+    renderGen();
     fireEvent.click(screen.getByRole("tab", { name: /^Color$/i }));
 
     expect(screen.queryByRole("button", { name: /^Linear$/i })).toBeNull();
@@ -238,13 +247,13 @@ describe("QRGenerator component", () => {
   });
 
   it("shows a good-contrast scannability verdict for the default dark colour", () => {
-    render(<QRGenerator />);
+    renderGen();
     fireEvent.click(screen.getByRole("tab", { name: /^Color$/i }));
     expect(screen.getByText(/should scan reliably/i)).toBeInTheDocument();
   });
 
   it("lets you pick an export resolution", () => {
-    render(<QRGenerator />);
+    renderGen();
     const hi = screen.getByRole("button", { name: /2048px/i });
     expect(hi).toBeInTheDocument();
     fireEvent.click(hi);
@@ -252,7 +261,7 @@ describe("QRGenerator component", () => {
   });
 
   it("exposes transparent-background and copy-image controls", () => {
-    render(<QRGenerator />);
+    renderGen();
     expect(
       screen.getByRole("checkbox", { name: /Transparent background/i }),
     ).toBeInTheDocument();
@@ -271,14 +280,14 @@ describe("QRGenerator component", () => {
         encodeURIComponent("https://shared.example") +
         "&c=ff0000&fr=brackets",
     );
-    render(<QRGenerator />);
+    renderGen();
     expect(screen.getByPlaceholderText("https://")).toHaveValue(
       "https://shared.example",
     );
   });
 
   it("offers a Copy editor link button", () => {
-    render(<QRGenerator />);
+    renderGen();
     expect(
       screen.getByRole("button", { name: /Copy editor link/i }),
     ).toBeInTheDocument();
@@ -298,7 +307,7 @@ describe("QRGenerator component", () => {
       dispatchEvent: () => false,
     })) as unknown as typeof window.matchMedia;
 
-    render(<QRGenerator />);
+    renderGen();
     // No duplicate checkbox — the desktop copy is not rendered on mobile.
     expect(
       screen.getAllByRole("checkbox", { name: /agree to the Terms/i }),
@@ -308,7 +317,7 @@ describe("QRGenerator component", () => {
   });
 
   it("records a recent code after copying, shown as a clickable chip", () => {
-    render(<QRGenerator />);
+    renderGen();
     // No history yet.
     expect(screen.queryByRole("heading", { name: /Recent codes/i })).toBeNull();
 
