@@ -1390,6 +1390,10 @@ export default function QRGenerator() {
             </label>
           </div>
 
+          {/* Terms gate — desktop shows it just above Download; on mobile it's
+              rendered next to the Generate button instead. */}
+          {!isMobile && termsGate}
+
           <div
             className={`download-menu ${dlOpen ? "is-open" : ""}`}
             ref={dlRef}
@@ -1489,10 +1493,6 @@ export default function QRGenerator() {
               </>
             )}
           </button>
-
-          {/* Terms gate — desktop shows it here at the end of the panel; on
-              mobile it's rendered next to the Generate button instead. */}
-          {!isMobile && termsGate}
         </aside>
       </div>
 
