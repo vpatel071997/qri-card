@@ -19,11 +19,22 @@
 
 ## Features
 
-- QR Code Generation:
-  - Enter URL and generate downloable QR code as a PNG image
-- VCard Generation:
-  - Enter details in the given fields and export QR code as a PNG image
-  - Allowing viewer to `Add to Contacts` on a single tap from VCard.
+- **Link → QR** — generate a styled QR code for any URL.
+- **V-card → QR** — fill in contact details, pick a card template, and share a
+  QR that opens a hosted contact page with one-tap **Add to Contacts** (`.vcf`).
+- **Design** — frames, dot & corner (eye) shapes, colours, gradient fills, a
+  center logo (auto-raises error correction), and a live scannability/contrast
+  guard that warns when a code may not scan.
+- **Batch / bulk** (`/batch`) — paste or upload a CSV of `name,link` rows and
+  download every QR at once as a **ZIP**, or a print-ready **Avery label-sheet
+  PDF**.
+- **Export options** — PNG, SVG, PDF and **EPS**; 256–2048 px resolution,
+  transparent background, and copy-to-clipboard.
+- **Share & resume** — a shareable editor link restores the exact design, and a
+  locally-saved "recent codes" list lets you jump back.
+
+Everything runs client-side — no sign-up, no backend, your data never leaves the
+browser.
 
 ## Live Access: [Click Me](https://qri-card.vercel.app)
 
@@ -109,17 +120,31 @@ npm run electron:dist
 
 ```
 src/
-  App.tsx         # Main app component
-  App.test.tsx    # Tests
-  index.tsx       # Entry point
-  ...
+  App.tsx                     # Routes + top nav (Single / Bulk switch)
+  components/
+    QRGenerator.tsx           # single-code builder (/)
+    BatchGenerator.tsx        # bulk CSV → ZIP / label-sheet PDF (/batch)
+    VCardView.tsx             # hosted contact page a scan opens (/vcard-view)
+    LinkRedirect.tsx          # /link?url= redirector
+    PageInfoSections.tsx      # shared Help / About / Disclaimer
+  utils/
+    vcard.ts, vCardFields.tsx, vcardTemplates.ts   # ⚠️ printed-card contract
+    qrOptions.ts, scannability.ts                  # design → QR options, contrast guard
+    csv.ts, zip.ts, pdf.ts, eps.ts                 # batch parsing + export writers
+    designUrl.ts, recents.ts                       # share links + recent history
+  *.test.* alongside each module                   # unit + golden-fixture tests
 ```
+
+> ⚠️ `vcard.ts`, `vCardFields.tsx` and `vcardTemplates.ts` are the frozen
+> printed-card encoding contract — see [`CLAUDE.md`](./CLAUDE.md) before editing.
 
 ## Technologies Used
 
 - [React](https://react.dev/)
 - [TypeScript](https://www.typescriptlang.org/)
-- [React Bootstrap](https://react-bootstrap.github.io/)
-- [react-qr-code](https://github.com/rosskhanas/react-qr-code)
-- [html-to-image](https://github.com/bubkoo/html-to-image)
-- [Powered By Vercel](http://vercel.com)
+- [qr-code-styling](https://github.com/kozakdenys/qr-code-styling) — styled QR (gradients, logo, dot/eye shapes)
+- [react-qr-code](https://github.com/rosskhanas/react-qr-code) — lightweight batch-preview QRs
+- [html-to-image](https://github.com/bubkoo/html-to-image) — export the styled preview
+- [lz-string](https://github.com/pieroxy/lz-string) — compress v-card data into share links
+- ZIP / PDF / EPS exports are dependency-free writers in `src/utils/` (see [`CLAUDE.md`](./CLAUDE.md))
+- Deployed to [Cloudflare Pages](https://pages.cloudflare.com/)

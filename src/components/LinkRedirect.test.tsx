@@ -27,8 +27,9 @@ describe("LinkRedirect (printed link QR target)", () => {
     renderAt(`?url=${encodeURIComponent("https://example.com")}`);
 
     expect(screen.getByText(/Redirecting/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /tap here/i }),
-    ).toHaveAttribute("href", "https://example.com");
+    expect(screen.getByRole("link", { name: /tap here/i })).toHaveAttribute(
+      "href",
+      "https://example.com",
+    );
   });
 });
