@@ -35,6 +35,10 @@ body,
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  /* Safety net for stray horizontal overflow (e.g. the heading's selection
+     handles). `clip` — not `hidden` — so it doesn't become a scroll container
+     and break the desktop sticky preview. */
+  overflow-x: clip;
 }
 
 main {
@@ -1824,7 +1828,10 @@ a.vcard-row-value {
 
 @media (max-width: 900px) {
   .qr-grid {
-    grid-template-columns: 1fr;
+    /* minmax(0, 1fr) — NOT plain 1fr — so the column can shrink below its
+       content's min-content width instead of forcing the page wider than the
+       viewport (the mobile "card slides left↔right" horizontal-scroll bug). */
+    grid-template-columns: minmax(0, 1fr);
   }
   .qr-preview {
     position: static;
@@ -1850,6 +1857,19 @@ a.vcard-row-value {
   }
   .site-nav-links {
     gap: 1rem;
+  }
+  /* The compact Frame/Shape/Color/Logo pill overflows a narrow phone — make it
+     stretch to the panel with the four tabs sharing the width equally. */
+  .design-tabs {
+    display: flex;
+    width: 100%;
+  }
+  .design-tab {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.35rem;
+    font-size: 0.9rem;
+    text-align: center;
   }
 }
 
