@@ -9,10 +9,11 @@
 # so the `name:` and job ids below must stay exactly `synivo-ci`, `ci`,
 # `enforce-source` to match the protected-branch config.
 #
-# NOTE: `enforce-source` is a best-effort reconstruction — the original job's
-# policy is not recoverable from git history. It currently guards the
-# printed-card safety files. Replace its body with your real source policy if
-# it enforced something else (e.g. mirror/sync integrity).
+# `enforce-source` was a best-effort reconstruction — the original job's policy
+# was not recoverable from git history, so it was rebuilt to guard the
+# printed-card safety files. It now ALSO does what its name says: a PR into
+# `main` must come from `staging`. Until 2026-08-01 nothing enforced that, and
+# the check's name made it look like something did.
 name: synivo-ci
 
 on:
@@ -42,6 +43,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: main may only take staging
+        # A merge into main publishes qr.synivo.com.au, and the only thing that
+        # has been seen running is whatever is on staging.
+        #
+        # This runs for PRs into main AND staging (see the `on:` block), so the
+        # base is checked in bash rather than with an `if:` expression — a PR
+        # into staging from a feature branch is exactly the normal path and must
+        # not fail here.
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+          if [ "$BASE_REF" != "main" ]; then
+            echo "PR targets '$BASE_REF', not main — the source rule does not apply"
+            exit 0
+          fi
+          if [ "$HEAD_REF" = "staging" ]; then
+            echo "head branch is 'staging' — ok"
+            exit 0
+          fi
+          echo "::error::PR into main comes from '$HEAD_REF', not 'staging'." >&2
+          echo "Merge this branch into staging first, confirm it on" >&2
+          echo "https://staging.qri-card.pages.dev, then raise staging -> main." >&2
+          exit 1
       - name: Printed-card guardrails must not be removed
         # These files protect QR codes already printed for customers. Deleting
         # them would silently drop the safety net, so a PR that removes any of

@@ -36,7 +36,7 @@
 Everything runs client-side — no sign-up, no backend, your data never leaves the
 browser.
 
-## Live Access: [Click Me](https://qri-card.vercel.app)
+## Live Access: [qr.synivo.com.au](https://qr.synivo.com.au)
 
 ## Development/Contribution - Getting Started
 
@@ -93,6 +93,76 @@ npm test
 ```bash
 npm run lint
 ```
+
+## Contributing
+
+Two long-lived branches. **`staging` is where work is proven, `main` is what the public
+sees.** Nothing reaches `main` except a merge from `staging`.
+
+```
+feature branch  ──PR──▶  staging  ──▶ staging.qri-card.pages.dev  (check it here)
+                                │
+                                └──PR──▶  main  ──▶ qr.synivo.com.au  (public)
+```
+
+### 1. Branch off `staging`
+
+```bash
+git fetch origin
+git switch -c feature/short-description origin/staging
+```
+
+Keep a branch to one change. Before you push, run `npm test` and `npm run build` — the
+`synivo-ci / ci` check runs both on your PR and a failure blocks the merge.
+
+### 2. PR into `staging`
+
+Open the pull request against **`staging`**, never `main`. It needs the `synivo-ci` checks
+green and **one approval**; `staging` takes no direct pushes. Once it merges,
+[`deploy-staging.yml`](.gitea/workflows/deploy-staging.yml) builds and publishes it to:
+
+**https://staging.qri-card.pages.dev**
+
+That is a *preview* deployment of the same Cloudflare Pages project — same build, same
+upload path as production. `qr.synivo.com.au` is bound to the production branch and is
+untouched. The URL is stable; each deploy replaces what is there.
+
+Staging is served with `X-Robots-Tag: noindex, nofollow` and a `Disallow: /` robots.txt,
+written over the build output by the workflow. They are **not** committed:
+[`public/robots.txt`](public/robots.txt) ships to production, where it deliberately allows
+indexing and points at the sitemap.
+
+**Scan a real card from staging before promoting anything that touches the printed-card
+contract.** A rendering that looks right in the builder can still encode a URL that no
+longer resolves — that is the failure this branch exists to catch, and it is invisible in
+unit tests.
+
+### 3. PR `staging` → `main` to release
+
+When staging looks right, open a PR from **`staging` into `main`**. It needs the same
+checks plus **one approval**, and `main` takes no direct pushes. The
+`synivo-ci / enforce-source` check fails the PR if it comes from any branch other than
+`staging` — Gitea 1.22 has no native "restrict source branch" rule, so that check is the
+rule. It also fails if any printed-card guardrail file has been deleted.
+
+Merging publishes `qr.synivo.com.au` (tests run again first — see
+[`deploy-pages.yml`](.gitea/workflows/deploy-pages.yml)).
+
+> **Repo admins can merge straight past all of this.** Gitea exempts admins from both the
+> required checks and the approval count, so for an owner these rules are a speed bump,
+> not a lock. For everyone with plain write access they are hard.
+
+### Rules of thumb
+
+- **Never commit straight to `staging` or `main`.** Both get their content through PRs.
+- **Never open a PR into `main` from a feature branch** — it fails `enforce-source`.
+- **Keep `staging` mergeable into `main`.** If they diverge, `main` is the truth; sync with
+  a PR from `main` into `staging`.
+- Delete your feature branch after it merges.
+
+Neither `main` nor `staging` can be deleted: in Gitea a protected branch cannot be removed
+by anyone, including a site admin — that covers `git push --delete`, the UI, the REST API,
+and the *delete branch after merge* tick on a `staging` → `main` PR.
 
 ---
 
