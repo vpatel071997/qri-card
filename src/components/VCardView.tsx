@@ -14,10 +14,13 @@ import {
   Facebook,
   JournalText,
 } from "react-bootstrap-icons";
-import LZString from "lz-string";
-
 import { VCardProps } from "../utils/props";
 import { vCardFields } from "../utils/vCardFields";
+import { decodeVCardData } from "../utils/vcard";
+import {
+  DEFAULT_TEMPLATE_ID,
+  normalizeTemplateId,
+} from "../utils/vcardTemplates";
 
 type DetailItem = {
   key: string;
@@ -29,28 +32,18 @@ type DetailItem = {
 
 export default function VCardView() {
   const [vCard, setVCard] = useState<VCardProps | null>();
+  const [template, setTemplate] = useState<string>(DEFAULT_TEMPLATE_ID);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     let vCardData: VCardProps = {};
 
+    // Pre-selected card style baked into the QR link (?t=<template>).
+    setTemplate(normalizeTemplateId(searchParams.get("t")));
+
     if (searchParams.has("data")) {
-      try {
-        const compressed = searchParams.get("data") || "";
-        const json = LZString.decompressFromEncodedURIComponent(compressed);
-        if (json) {
-          vCardData = JSON.parse(json);
-          const mappedData: VCardProps = {};
-          vCardFields.forEach((field) => {
-            if (vCardData[field.id]) {
-              mappedData[field.name] = vCardData[field.id];
-            }
-          });
-          vCardData = mappedData;
-        }
-      } catch (e) {
-        console.error("Failed to decompress vCard data", e);
-      }
+      // Shared, compressed format — the printed-card contract (utils/vcard.ts).
+      vCardData = decodeVCardData(searchParams.get("data") || "");
     } else {
       const seen = new Set<string>();
       searchParams.forEach((value, key) => {
@@ -67,10 +60,41 @@ export default function VCardView() {
   const handleAddToContacts = () => {
     if (!vCard) return;
 
-    let vcardStr = "BEGIN:VCARD\nVERSION:3.0\n";
+    // Escape a TEXT value per RFC 6350/2426 so free text (a multi-line Note,
+    // an address or org with commas/semicolons) can't break the vCard
+    // structure. NOT applied to URI values (URL/PHOTO) — escaping a URL's
+    // commas would corrupt the link.
+    const esc = (v?: string) =>
+      (v || "")
+        .replace(/\\/g, "\\\\")
+        .replace(/\n/g, "\\n")
+        .replace(/,/g, "\\,")
+        .replace(/;/g, "\\;");
 
-    vcardStr += `N:${vCard.lastName || ""};${vCard.firstName || ""};${vCard.middleName || ""};${vCard.prefix || ""};${vCard.suffix || ""}\n`;
-    vcardStr += `FN:${[vCard.prefix, vCard.firstName, vCard.middleName, vCard.lastName, vCard.suffix].filter(Boolean).join(" ")}\n`;
+    const lines: string[] = ["BEGIN:VCARD", "VERSION:3.0"];
+
+    // The Title dropdown (Mr./Ms./Dr./…) is an honorific *prefix*, so it goes
+    // in N's 4th slot and the formatted name — not TITLE, which is a job title.
+    lines.push(
+      `N:${esc(vCard.lastName)};${esc(vCard.firstName)};${esc(vCard.middleName)};${esc(vCard.title)};`,
+    );
+    lines.push(
+      `FN:${esc(
+        [vCard.title, vCard.firstName, vCard.middleName, vCard.lastName]
+          .filter(Boolean)
+          .join(" "),
+      )}`,
+    );
+
+    // Social links as grouped `itemN.URL` + `X-ABLabel`: iOS shows a labelled,
+    // clickable link and Android imports it as a website. (X-SOCIALPROFILE,
+    // used before, is Apple-only and Android drops it entirely.)
+    let itemSeq = 0;
+    const social = (label: string, value: string) => {
+      itemSeq += 1;
+      lines.push(`item${itemSeq}.URL:${value}`);
+      lines.push(`item${itemSeq}.X-ABLabel:${label}`);
+    };
 
     vCardFields.forEach((field) => {
       const value = vCard[field.name];
@@ -78,50 +102,42 @@ export default function VCardView() {
 
       switch (field.name) {
         case "email":
-          vcardStr += `EMAIL:${value}\n`;
+          lines.push(`EMAIL;TYPE=INTERNET:${esc(value)}`);
           break;
         case "phone":
-          vcardStr += `TEL;TYPE=CELL:${value}\n`;
+          lines.push(`TEL;TYPE=CELL:${value}`);
           break;
         case "org":
-          vcardStr += `ORG:${value}\n`;
-          break;
-        case "title":
-          vcardStr += `TITLE:${value}\n`;
-          break;
-        case "street":
-        case "city":
-        case "state":
-        case "country":
-        case "postalCode":
+          lines.push(`ORG:${esc(value)}`);
           break;
         case "website":
-          vcardStr += `URL:${value}\n`;
+          lines.push(`URL:${value}`);
           break;
         case "birthday":
-          vcardStr += `BDAY:${value}\n`;
+          lines.push(`BDAY:${value}`);
           break;
         case "photoUrl":
-          vcardStr += `PHOTO;VALUE=URI:${value}\n`;
-          break;
-        case "gender":
-          vcardStr += `GENDER:${value}\n`;
+          lines.push(`PHOTO;VALUE=URI:${value}`);
           break;
         case "note":
-          vcardStr += `NOTE:${value}\n`;
-          break;
-        case "linkedin":
-          vcardStr += `X-SOCIALPROFILE;TYPE=linkedin:${value}\n`;
-          break;
-        case "twitter":
-          vcardStr += `X-SOCIALPROFILE;TYPE=twitter:${value}\n`;
-          break;
-        case "facebook":
-          vcardStr += `X-SOCIALPROFILE;TYPE=facebook:${value}\n`;
+          lines.push(`NOTE:${esc(value)}`);
           break;
         case "instagram":
-          vcardStr += `X-SOCIALPROFILE;TYPE=instagram:${value}\n`;
+          social("Instagram", value);
           break;
+        case "linkedin":
+          social("LinkedIn", value);
+          break;
+        case "twitter":
+          social("Twitter", value);
+          break;
+        case "facebook":
+          social("Facebook", value);
+          break;
+        // title -> folded into N/FN above.
+        // gender -> no interoperable vCard 3.0 form (iOS/Android drop GENDER),
+        //   so it's intentionally omitted rather than written as a dead line.
+        // address parts -> combined into a single ADR below.
         default:
           break;
       }
@@ -134,10 +150,15 @@ export default function VCardView() {
       vCard.country ||
       vCard.postalCode
     ) {
-      vcardStr += `ADR;TYPE=HOME:;;${vCard.street || ""};${vCard.city || ""};${vCard.state || ""};${vCard.postalCode || ""};${vCard.country || ""}\n`;
+      lines.push(
+        `ADR;TYPE=HOME:;;${esc(vCard.street)};${esc(vCard.city)};${esc(vCard.state)};${esc(vCard.postalCode)};${esc(vCard.country)}`,
+      );
     }
 
-    vcardStr += "END:VCARD";
+    lines.push("END:VCARD");
+
+    // CRLF line endings per the vCard spec.
+    const vcardStr = lines.join("\r\n");
 
     const blob = new Blob([vcardStr], { type: "text/vcard;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -271,7 +292,7 @@ export default function VCardView() {
   }
 
   return (
-    <div className="vcard-view">
+    <div className={`vcard-view tpl-${template}`}>
       <div className="vcard-card">
         <div className="vcard-hero">
           {vCard?.photoUrl ? (
@@ -328,7 +349,11 @@ export default function VCardView() {
 
       <p className="vcard-brand">
         Created by{" "}
-        <a href="https://synivo.tech/" target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://synivo.tech/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Synivo
         </a>
       </p>

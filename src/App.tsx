@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import { QrCodeScan } from "react-bootstrap-icons";
+import { QrCodeScan, QuestionCircle, Grid3x3Gap } from "react-bootstrap-icons";
 
 import QRGenerator from "./components/QRGenerator";
 import VCardView from "./components/VCardView";
 import LinkRedirect from "./components/LinkRedirect";
+import BatchGenerator from "./components/BatchGenerator";
+import { SPA_NAVIGATE_EVENT } from "./utils/spaNav";
 
 const CHROMELESS_PATHS = ["/vcard-view", "/link"];
 
@@ -16,6 +18,17 @@ function App() {
   useEffect(() => {
     setShowChrome(!CHROMELESS_PATHS.includes(location.pathname));
   }, [location.pathname]);
+
+  // Components navigate by dispatching this event (they can't import
+  // react-router — its v7 exports don't resolve under the CRA Jest resolver).
+  useEffect(() => {
+    const onNav = (e: Event) => {
+      const path = (e as CustomEvent<string>).detail;
+      if (path) navigate(path);
+    };
+    window.addEventListener(SPA_NAVIGATE_EVENT, onNav);
+    return () => window.removeEventListener(SPA_NAVIGATE_EVENT, onNav);
+  }, [navigate]);
 
   return (
     <div className="app-shell">
@@ -33,6 +46,49 @@ function App() {
               </span>
               <span className="brand-name">QriCard</span>
             </button>
+
+            <div className="site-nav-right">
+              <nav className="nav-modes" aria-label="Generator mode">
+                <button
+                  type="button"
+                  className={`nav-mode ${location.pathname !== "/batch" ? "is-active" : ""}`}
+                  onClick={() => navigate("/")}
+                >
+                  <QrCodeScan size={15} aria-hidden />
+                  <span>Single</span>
+                </button>
+                <button
+                  type="button"
+                  className={`nav-mode ${location.pathname === "/batch" ? "is-active" : ""}`}
+                  onClick={() => navigate("/batch")}
+                >
+                  <Grid3x3Gap size={15} aria-hidden />
+                  <span>Bulk / Batch</span>
+                </button>
+              </nav>
+
+              <button
+                type="button"
+                className="nav-help"
+                onClick={() =>
+                  window.dispatchEvent(new CustomEvent("qricard:open-help"))
+                }
+              >
+                <QuestionCircle size={16} aria-hidden />
+                <span>Help</span>
+              </button>
+
+              <p className="nav-powered">
+                Powered by{" "}
+                <a
+                  href="https://synivo.tech/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Synivo
+                </a>
+              </p>
+            </div>
           </div>
         </header>
       )}
@@ -42,6 +98,7 @@ function App() {
           <Route path="/" element={<QRGenerator />} />
           <Route path="/url-to-qr" element={<QRGenerator />} />
           <Route path="/vcard-gen" element={<QRGenerator />} />
+          <Route path="/batch" element={<BatchGenerator />} />
           <Route path="/vcard-view" element={<VCardView />} />
           <Route path="/link" element={<LinkRedirect />} />
         </Routes>

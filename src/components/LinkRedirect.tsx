@@ -57,7 +57,11 @@ export default function LinkRedirect() {
 
       <p className="redirect-brand">
         Powered by{" "}
-        <a href="https://synivo.tech/" target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://synivo.tech/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Synivo
         </a>
       </p>
