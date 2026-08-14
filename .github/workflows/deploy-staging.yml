@@ -1,0 +1,44 @@
+name: Deploy staging to Cloudflare Pages
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        # Same install as deploy-pages.yml: the Electron toolchain lives in
+        # devDependencies and pulls an SSH git dep (@electron/node-gyp) that
+        # stalls CI, so omit dev + optional.
+        run: npm ci --omit=optional --omit=dev || npm install --omit=dev
+      - name: Build (CRA)
+        env:
+          CI: "false" # CRA treats warnings as errors under CI=true
+        run: npm run build
+      # No test job here, unlike deploy-pages.yml. Nothing reaches `staging`
+      # except a PR, and `synivo-ci / ci` already ran the full test suite on that
+      # PR before it could merge — re-running it would only slow down the
+      # feedback loop this branch exists to shorten. Production keeps its own
+      # test gate because a release is worth the extra minutes.
+      - name: Keep staging out of search results
+        # Staging serves the same app as qr.synivo.com.au, so it has to be
+        # de-indexed or it competes with the live site. Written over the built
+        # output, NOT into public/robots.txt — that file ships to production,
+        # where it deliberately allows indexing and points at the sitemap.
+        run: |
+          set -euo pipefail
+          printf '/*\n  X-Robots-Tag: noindex, nofollow\n' > build/_headers
+          printf 'User-agent: *\nDisallow: /\n' > build/robots.txt
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        # --branch=staging makes this a PREVIEW deployment of the same Pages
+        # project, so it lands on the stable staging.qri-card.pages.dev.
+        # Production and the qr.synivo.com.au custom domain are bound to the
+        # production branch (main) and are not touched. That flag is the only
+        # thing separating this from a production deploy.
+        run: npx --yes wrangler@3 pages deploy build --project-name=qri-card --branch=staging --commit-dirty=true
